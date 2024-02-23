@@ -35,7 +35,7 @@ public class CoreStreamEventsController {
   }
 
   public void fireEvent(StreamEvent event) {
-    Log.w("CoreStreamEventsController", "fireEvent: " + event.toString());
+//    Log.w("CoreStreamEventsController", "fireEvent: " + event.toString());
     if (event instanceof StreamAttentionEvent) {
       this.streamAttentionEventHandler.fireEvent((StreamAttentionEvent) event);
 

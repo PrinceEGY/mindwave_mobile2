@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
+import 'BandPower.dart';
 import 'HeadsetState.dart';
 
 const String NAMESPACE = 'flutter_mindwave_mobile2';
@@ -63,24 +64,40 @@ class FlutterMindwaveMobile2 {
         .listen(listenStream);
   }
 
-  StreamSubscription<dynamic> onSignalQualityUpdate(listenStream) {
-    return _signalQualityChannel.receiveBroadcastStream().listen(listenStream);
+  StreamSubscription<int> onSignalQualityUpdate(listenStream) {
+    return _signalQualityChannel
+        .receiveBroadcastStream()
+        .map((value) => value as int)
+        .listen(listenStream);
   }
 
-  StreamSubscription<dynamic> onAttentionUpdate(listenStream) {
-    return _attentionChannel.receiveBroadcastStream().listen(listenStream);
+  StreamSubscription<int> onAttentionUpdate(listenStream) {
+    return _attentionChannel
+        .receiveBroadcastStream()
+        .map((value) => value as int)
+        .listen(listenStream);
   }
 
-  StreamSubscription<dynamic> onMeditationUpdate(listenStream) {
-    return _meditationChannel.receiveBroadcastStream().listen(listenStream);
+  StreamSubscription<int> onMeditationUpdate(listenStream) {
+    return _meditationChannel
+        .receiveBroadcastStream()
+        .map((value) => value as int)
+        .listen(listenStream);
   }
 
-  StreamSubscription<dynamic> onBandPowerUpdate(listenStream) {
-    return _bandPowerChannel.receiveBroadcastStream().listen(listenStream);
+  StreamSubscription<BandPower> onBandPowerUpdate(listenStream) {
+    return _bandPowerChannel
+        .receiveBroadcastStream()
+        .map((event) => BandPower(event[0], event[1], event[2], event[3],
+            event[4], event[5], event[6]))
+        .listen(listenStream);
   }
 
-  StreamSubscription<dynamic> onRawUpdate(listenStream) {
-    return _rawChannel.receiveBroadcastStream().listen(listenStream);
+  StreamSubscription<List<int>> onRawUpdate(listenStream) {
+    return _rawChannel
+        .receiveBroadcastStream()
+        .map((event) => event as List<int>)
+        .listen(listenStream);
   }
 
   // ****************************

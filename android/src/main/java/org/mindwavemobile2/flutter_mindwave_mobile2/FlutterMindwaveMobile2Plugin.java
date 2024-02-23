@@ -12,6 +12,13 @@ import headset.events.headsetStateChange.HeadsetStateChangeEvent;
 import headset.events.headsetStateChange.IHeadsetStateChangeEventListener;
 import headset.events.stream.streamAttention.IStreamAttentionEventListener;
 import headset.events.stream.streamAttention.StreamAttentionEvent;
+import headset.events.stream.streamEEG.IStreamEEGDataEventListener;
+import headset.events.stream.streamEEG.StreamEEGData;
+import headset.events.stream.streamEEG.StreamEEGDataEvent;
+import headset.events.stream.streamMeditation.IStreamMeditationEventListener;
+import headset.events.stream.streamMeditation.StreamMeditationEvent;
+import headset.events.stream.streamRaw.IStreamRawDataEventListener;
+import headset.events.stream.streamRaw.StreamRawDataEvent;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.EventChannel.EventSink;
@@ -29,10 +36,17 @@ public class FlutterMindwaveMobile2Plugin implements FlutterPlugin {
   private MindWaveMobile2 headset;
   private BluetoothManager _BluetoothManager;
   private MethodChannel _connectionChannel;
-  private EventChannel _attentionChannel;
   private EventChannel _headsetStateChannel;
-  IStreamAttentionEventListener attentionEventListener;
+  private EventChannel _signalQualityChannel;
+  private EventChannel _attentionChannel;
+  private EventChannel _meditationChannel;
+  private EventChannel _bandPowerChannel;
+  private EventChannel _rawChannel;
   IHeadsetStateChangeEventListener headsetStateEventListener;
+  IStreamAttentionEventListener attentionEventListener;
+  IStreamMeditationEventListener meditationEventListener;
+  IStreamEEGDataEventListener bandPowerEventListener;
+  IStreamRawDataEventListener rawEventListener;
   private final StreamHandler headsetStateChannelHandler = new StreamHandler() {
     @Override
     public void onListen(Object o, EventSink eventSink) {
@@ -47,7 +61,19 @@ public class FlutterMindwaveMobile2Plugin implements FlutterPlugin {
     }
     @Override
     public void onCancel(Object o) {
+      Log.i("Native","HeadsetState Listener Removed");
       headset.removeEventListener(headsetStateEventListener);
+    }
+  };
+  private final StreamHandler signalQualityChannelHandler = new StreamHandler(){
+    @Override
+    public void onListen(Object o, EventSink eventSink) {
+       // TODO:
+    }
+
+    @Override
+    public void onCancel(Object o) {
+      // TODO:
     }
   };
   private final StreamHandler attentionChannelHandler = new StreamHandler() {
@@ -65,6 +91,66 @@ public class FlutterMindwaveMobile2Plugin implements FlutterPlugin {
     @Override
     public void onCancel(Object o) {
       headset.removeEventListener(attentionEventListener);
+    }
+  };
+
+  private final StreamHandler meditationChannelHandler = new StreamHandler(){
+    @Override
+    public void onListen(Object o, EventSink eventSink) {
+      meditationEventListener = new IStreamMeditationEventListener() {
+        @Override
+        public void onMeditationUpdate(StreamMeditationEvent event) {
+          uiThreadHandler.post(() -> eventSink.success(event.getMeditationData().meditation()));
+        }
+      };
+      headset.addEventListener(meditationEventListener);
+    }
+
+    @Override
+    public void onCancel(Object o) {
+      headset.removeEventListener(meditationEventListener);
+    }
+  };
+  private final StreamHandler bandPowerChannelHandler = new StreamHandler(){
+    @Override
+    public void onListen(Object o, EventSink eventSink) {
+      bandPowerEventListener = new IStreamEEGDataEventListener() {
+        @Override
+        public void onEEGDataUpdate(StreamEEGDataEvent event) {
+          StreamEEGData data = event.getEEGData();
+          int[] EEGData = {data.delta(), data.theta(), data.lowAlpha(), data.highAlpha(), data.lowAlpha(), data.highBeta(), data.lowGamma(), data.midGamma()};
+          uiThreadHandler.post(() -> eventSink.success(EEGData));
+        }
+
+      };
+      headset.addEventListener(bandPowerEventListener);
+    }
+
+    @Override
+    public void onCancel(Object o) {
+      headset.removeEventListener(bandPowerEventListener);
+    }
+  };
+  private final StreamHandler rawChannelHandler = new StreamHandler(){
+    @Override
+    public void onListen(Object o, EventSink eventSink) {
+      rawEventListener = new IStreamRawDataEventListener() {
+        @Override
+        public void onRawDataUpdate(StreamRawDataEvent event) {
+          short[] rawData = event.getRawData().rawData();
+          // Flutter Channels doesn't support 'short' datatype, hence need to be casted
+          int[] castedData = new int[rawData.length];
+          for(int i=0; i<rawData.length;i++)
+            castedData[i] = rawData[i];
+          uiThreadHandler.post(() -> eventSink.success(castedData));
+        }
+      };
+      headset.addEventListener(rawEventListener);
+    }
+
+    @Override
+    public void onCancel(Object o) {
+      headset.removeEventListener(rawEventListener);
     }
   };
 
@@ -96,15 +182,26 @@ public class FlutterMindwaveMobile2Plugin implements FlutterPlugin {
     _connectionChannel.setMethodCallHandler(connectionChannelHandler);
     _headsetStateChannel = new EventChannel(flutterPluginBinding.getBinaryMessenger(), NAMESPACE+"/HeadsetState");
     _headsetStateChannel.setStreamHandler(headsetStateChannelHandler);
+    _signalQualityChannel = new EventChannel(flutterPluginBinding.getBinaryMessenger(), NAMESPACE+"/SignalQuality");
+    _signalQualityChannel.setStreamHandler(attentionChannelHandler);
     _attentionChannel = new EventChannel(flutterPluginBinding.getBinaryMessenger(), NAMESPACE+"/Attention");
     _attentionChannel.setStreamHandler(attentionChannelHandler);
+    _meditationChannel = new EventChannel(flutterPluginBinding.getBinaryMessenger(), NAMESPACE+"/Meditation");
+    _meditationChannel.setStreamHandler(meditationChannelHandler);
+    _bandPowerChannel = new EventChannel(flutterPluginBinding.getBinaryMessenger(), NAMESPACE+"/BandPower");
+    _bandPowerChannel.setStreamHandler(bandPowerChannelHandler);
+    _rawChannel = new EventChannel(flutterPluginBinding.getBinaryMessenger(), NAMESPACE+"/RAW");
+    _rawChannel.setStreamHandler(rawChannelHandler);
   }
 
   @Override
   public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
     headset.disconnect();
-    _connectionChannel.setMethodCallHandler(null);
     _headsetStateChannel.setStreamHandler(null);
+    _connectionChannel.setMethodCallHandler(null);
     _attentionChannel.setStreamHandler(null);
+    _meditationChannel.setStreamHandler(null);
+    _bandPowerChannel.setStreamHandler(null);
+    _rawChannel.setStreamHandler(null);
   }
 }

@@ -18,28 +18,23 @@ class DeviceScreen extends StatefulWidget {
 
 class _DeviceScreenState extends State<DeviceScreen> {
   final FlutterMindwaveMobile2 headset = FlutterMindwaveMobile2();
-  int? _mtuSize;
   HeadsetState _headsetState = HeadsetState.DISCONNECTED;
   final bool _isConnecting = false;
 
-  late StreamSubscription<int> _mtuSubscription;
-  late StreamSubscription _headsetStateSubscription;
-  late StreamSubscription _attentionSubscription;
+  StreamSubscription? _headsetStateSubscription;
+  StreamSubscription? _attentionSubscription;
+  StreamSubscription? _meditationSubscription;
+
+  int? _attentionData;
+  int? _meditationData;
 
   @override
   void initState() {
     super.initState();
-    _mtuSubscription = widget.device.mtu.listen((value) {
-      _mtuSize = value;
-      if (mounted) {
-        setState(() {});
-      }
-    });
   }
 
   @override
   void dispose() {
-    _mtuSubscription.cancel();
     super.dispose();
   }
 
@@ -92,23 +87,6 @@ class _DeviceScreenState extends State<DeviceScreen> {
     );
   }
 
-  Widget buildRemoteId(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Text('${widget.device.remoteId}'),
-    );
-  }
-
-  Widget buildMtuTile(BuildContext context) {
-    return ListTile(
-        title: const Text('MTU Size'),
-        subtitle: Text('$_mtuSize bytes'),
-        trailing: IconButton(
-          icon: const Icon(Icons.edit),
-          onPressed: onRequestMtuPressed,
-        ));
-  }
-
   Widget buildConnectButton(BuildContext context) {
     return Row(children: [
       if (_isConnecting) buildSpinner(context),
@@ -133,22 +111,57 @@ class _DeviceScreenState extends State<DeviceScreen> {
         body: SingleChildScrollView(
           child: Column(
             children: <Widget>[
-              Text(_headsetState.name),
-              buildRemoteId(context),
-              buildMtuTile(context),
+              Text("State: ${_headsetState.name}"),
               ElevatedButton(
-                  onPressed: () => _attentionSubscription =
-                      FlutterMindwaveMobile2.instance.onAttentionUpdate(
-                          (value) => {
-                                debugPrint(
-                                    "Attention Received From Native:  $value\n")
-                              }),
-                  child: const Text("Attention Listen")),
+                onPressed: () => _headsetStateSubscription == null
+                    ? _headsetStateSubscription = FlutterMindwaveMobile2
+                        .instance
+                        .onStateChange(headsetStateListener)
+                    : null,
+                child: const Text("Headset State Listen"),
+              ),
               ElevatedButton(
-                onPressed: () => _headsetStateSubscription =
-                    FlutterMindwaveMobile2.instance
-                        .onStateChange(headsetStateListener),
-                child: const Text("HeadState Listen"),
+                onPressed: () => _headsetStateSubscription?.cancel(),
+                child: const Text("Headset State Stop Listening"),
+              ),
+              const SizedBox(
+                height: 50,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                      onPressed: () => _attentionSubscription =
+                          FlutterMindwaveMobile2.instance.onAttentionUpdate(
+                              (value) =>
+                                  setState(() => _attentionData = value)),
+                      child: const Text("Attention Listen")),
+                  Text("$_attentionData"),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                      onPressed: () => _meditationSubscription =
+                          FlutterMindwaveMobile2.instance.onMeditationUpdate(
+                              (value) =>
+                                  setState(() => _meditationData = value)),
+                      child: const Text("Meditation Listen")),
+                  Text("$_meditationData"),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                      onPressed: () => _meditationSubscription =
+                          FlutterMindwaveMobile2.instance.onRawUpdate(
+                              (List<int> value) => debugPrint(
+                                  "Raw is Received, Length: ${value.length}, First sample: ${value.first}, Last sample: ${value.last}")),
+                      child: const Text("Raw Listen")),
+                  const Text("Raw Placeholder"),
+                ],
               ),
             ],
           ),
