@@ -28,6 +28,8 @@ class _DeviceScreenState extends State<DeviceScreen> {
   int? _attentionData;
   int? _meditationData;
 
+  bool testStream = false;
+
   @override
   void initState() {
     super.initState();
@@ -130,13 +132,20 @@ class _DeviceScreenState extends State<DeviceScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
+                  testStream
+                      ? StreamBuilder(
+                          stream: FlutterMindwaveMobile2.instance
+                              .onAttentionUpdate(),
+                          builder: (context, snapshot) {
+                            return Text(
+                                snapshot.hasData ? "${snapshot.data}" : "NA");
+                          })
+                      : Text("testStraem OFF"),
                   ElevatedButton(
-                      onPressed: () => _attentionSubscription =
-                          FlutterMindwaveMobile2.instance.onAttentionUpdate(
-                              (value) =>
-                                  setState(() => _attentionData = value)),
+                      onPressed: () => setState(() {
+                            testStream = !testStream;
+                          }),
                       child: const Text("Attention Listen")),
-                  Text("$_attentionData"),
                 ],
               ),
               Row(

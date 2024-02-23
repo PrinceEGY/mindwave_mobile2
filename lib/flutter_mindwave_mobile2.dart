@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_mindwave_mobile2/AlgoStateReason.dart';
 
+import 'AlgoBandPower.dart';
 import 'BandPower.dart';
 import 'HeadsetState.dart';
 
@@ -57,77 +59,77 @@ class FlutterMindwaveMobile2 {
   // ****************************
   // **** Stream SDK Streams ****
   // ****************************
-  StreamSubscription<HeadsetState> onStateChange(listenStream) {
+  Stream<HeadsetState> onStateChange() {
     return _headsetStateChannel
         .receiveBroadcastStream()
-        .map((value) => HeadsetState.fromValue(value))
-        .listen(listenStream);
+        .map((value) => HeadsetState.fromValue(value));
   }
 
-  StreamSubscription<int> onSignalQualityUpdate(listenStream) {
+  Stream<int> onSignalQualityUpdate() {
     return _signalQualityChannel
         .receiveBroadcastStream()
-        .map((value) => value as int)
-        .listen(listenStream);
+        .map((value) => value as int);
   }
 
-  StreamSubscription<int> onAttentionUpdate(listenStream) {
+  Stream<int> onAttentionUpdate() {
     return _attentionChannel
         .receiveBroadcastStream()
-        .map((value) => value as int)
-        .listen(listenStream);
+        .map((value) => value as int);
   }
 
-  StreamSubscription<int> onMeditationUpdate(listenStream) {
+  Stream<int> onMeditationUpdate(listenStream) {
     return _meditationChannel
         .receiveBroadcastStream()
-        .map((value) => value as int)
-        .listen(listenStream);
+        .map((value) => value as int);
   }
 
-  StreamSubscription<BandPower> onBandPowerUpdate(listenStream) {
-    return _bandPowerChannel
-        .receiveBroadcastStream()
-        .map((event) => BandPower(event[0], event[1], event[2], event[3],
-            event[4], event[5], event[6]))
-        .listen(listenStream);
+  Stream<BandPower> onBandPowerUpdate(listenStream) {
+    return _bandPowerChannel.receiveBroadcastStream().map((event) => BandPower(
+        event[0], event[1], event[2], event[3], event[4], event[5], event[6]));
   }
 
-  StreamSubscription<List<int>> onRawUpdate(listenStream) {
+  Stream<List<int>> onRawUpdate(listenStream) {
     return _rawChannel
         .receiveBroadcastStream()
-        .map((event) => event as List<int>)
-        .listen(listenStream);
+        .map((event) => event as List<int>);
   }
 
   // ****************************
   // **** Algo SDK Streams ****
   // ****************************
-  StreamSubscription<dynamic> onAlgoStateReasonChange(listenStream) {
-    return _algoStateReasonChannel
+  Stream<Map> onAlgoStateReasonChange(listenStream) {
+    return _algoStateReasonChannel.receiveBroadcastStream().map((event) => {
+          "State": AlgoState.fromValue(event['State']),
+          "Reason": AlgoReason.fromValue(event['Reason'])
+        });
+  }
+
+  Stream<int> onAlgoAttentionUpdate(listenStream) {
+    return _algoAttentionChannel
         .receiveBroadcastStream()
-        .listen(listenStream);
+        .map((value) => value as int);
   }
 
-  StreamSubscription<dynamic> onAlgoAttentionUpdate(listenStream) {
-    return _algoAttentionChannel.receiveBroadcastStream().listen(listenStream);
+  Stream<int> onAlgoMeditationUpdate(listenStream) {
+    return _algoMeditationChannel
+        .receiveBroadcastStream()
+        .map((value) => value as int);
   }
 
-  StreamSubscription<dynamic> onAlgoMeditationUpdate(listenStream) {
-    return _algoMeditationChannel.receiveBroadcastStream().listen(listenStream);
+  Stream<AlgoBandPower> onAlgoBandPowerUpdate(listenStream) {
+    return _algoBandPowerChannel.receiveBroadcastStream().map((event) =>
+        AlgoBandPower(event[0], event[1], event[2], event[3], event[4]));
   }
 
-  StreamSubscription<dynamic> onAlgoBandPowerUpdate(listenStream) {
-    return _algoBandPowerChannel.receiveBroadcastStream().listen(listenStream);
-  }
-
-  StreamSubscription<dynamic> onAlgoSignalQualityUpdate(listenStream) {
+  Stream<int> onAlgoSignalQualityUpdate(listenStream) {
     return _algoSignalQualityChannel
         .receiveBroadcastStream()
-        .listen(listenStream);
+        .map((value) => value as int);
   }
 
-  StreamSubscription<dynamic> onBlink(listenStream) {
-    return _algoBlinkChannel.receiveBroadcastStream().listen(listenStream);
+  Stream<int> onBlink(listenStream) {
+    return _algoBlinkChannel
+        .receiveBroadcastStream()
+        .map((value) => value as int);
   }
 }

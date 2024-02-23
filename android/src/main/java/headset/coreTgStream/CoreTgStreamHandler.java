@@ -35,7 +35,7 @@ public class CoreTgStreamHandler implements TgStreamHandler {
   private CoreNskAlgoSdk coreNskAlgoSdk;
   private int raw_data_index = 0;
   private TgStreamReader tgStreamReader;
-  
+
   public CoreTgStreamHandler() {
     this.coreNskAlgoSdk = new CoreNskAlgoSdk();
     this.eventsHandler = new CoreStreamEventsController();
@@ -73,7 +73,6 @@ public class CoreTgStreamHandler implements TgStreamHandler {
       case MindDataType.CODE_RAW -> {
         raw_data[raw_data_index++] = (short) data;
         if (raw_data_index >= 512) {
-          Log.i("Native", "Raw Data Emitted");
           eventsHandler.fireEvent(new StreamRawDataEvent(this, new StreamRawData(raw_data)));
 //          coreNskAlgoSdk.UpdateAlgoData(NskAlgoDataType.NSK_ALGO_DATA_TYPE_EEG, raw_data, 512);
           raw_data_index = 0;
