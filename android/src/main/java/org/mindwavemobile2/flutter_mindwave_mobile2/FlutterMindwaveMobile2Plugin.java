@@ -86,11 +86,11 @@ public class FlutterMindwaveMobile2Plugin implements FlutterPlugin {
   private final StreamHandler rawChannelHandler = createRawChannelHandler();
 
   private final StreamHandler algoStateReasonChannelHandler = createAlgoStateReasonChannelHandler();
-  private final StreamHandler algoSignalQualityHandler = createAlgoSignalQualityHandler();
-  private final StreamHandler algoAttentionHandler = createAlgoAttentionHandler();
-  private final StreamHandler algoMeditationHandler = createAlgoMeditationHandler();
-  private final StreamHandler algoBandPowerHandler = createAlgoBandPowerHandler();
-  private final StreamHandler algoBlinkHandler = createAlgoBlinkHandler();
+  private final StreamHandler algoSignalQualityHandler = createAlgoSignalQualityChannelHandler();
+  private final StreamHandler algoAttentionHandler = createAlgoAttentionChannelHandler();
+  private final StreamHandler algoMeditationHandler = createAlgoMeditationChannelHandler();
+  private final StreamHandler algoBandPowerHandler = createAlgoBandPowerChannelHandler();
+  private final StreamHandler algoBlinkHandler = createAlgoBlinkChannelHandler();
 
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -104,7 +104,7 @@ public class FlutterMindwaveMobile2Plugin implements FlutterPlugin {
     _headsetStateChannel.setStreamHandler(headsetStateChannelHandler);
     _signalQualityChannel = new EventChannel(flutterPluginBinding.getBinaryMessenger(),
         NAMESPACE + "/SignalQuality");
-    _signalQualityChannel.setStreamHandler(attentionChannelHandler);
+    _signalQualityChannel.setStreamHandler(signalQualityChannelHandler);
     _rawChannel = new EventChannel(flutterPluginBinding.getBinaryMessenger(),
         NAMESPACE + "/RAW");
     _rawChannel.setStreamHandler(rawChannelHandler);
@@ -142,8 +142,9 @@ public class FlutterMindwaveMobile2Plugin implements FlutterPlugin {
     if (headset != null) {
       headset.disconnect();
     }
-    _headsetStateChannel.setStreamHandler(null);
     _connectionChannel.setMethodCallHandler(null);
+    _headsetStateChannel.setStreamHandler(null);
+    _signalQualityChannel.setStreamHandler(null);
     _attentionChannel.setStreamHandler(null);
     _meditationChannel.setStreamHandler(null);
     _bandPowerChannel.setStreamHandler(null);
@@ -308,7 +309,7 @@ public class FlutterMindwaveMobile2Plugin implements FlutterPlugin {
     };
   }
 
-  private StreamHandler createAlgoAttentionHandler() {
+  private StreamHandler createAlgoAttentionChannelHandler() {
     return new StreamHandler() {
       @Override
       public void onListen(Object o, EventSink eventSink) {
@@ -328,7 +329,7 @@ public class FlutterMindwaveMobile2Plugin implements FlutterPlugin {
     };
   }
 
-  private StreamHandler createAlgoMeditationHandler() {
+  private StreamHandler createAlgoMeditationChannelHandler() {
     return new StreamHandler() {
       @Override
       public void onListen(Object o, EventSink eventSink) {
@@ -348,7 +349,7 @@ public class FlutterMindwaveMobile2Plugin implements FlutterPlugin {
     };
   }
 
-  private StreamHandler createAlgoSignalQualityHandler() {
+  private StreamHandler createAlgoSignalQualityChannelHandler() {
     return new StreamHandler() {
       @Override
       public void onListen(Object o, EventSink eventSink) {
@@ -369,7 +370,7 @@ public class FlutterMindwaveMobile2Plugin implements FlutterPlugin {
     };
   }
 
-  private StreamHandler createAlgoBandPowerHandler() {
+  private StreamHandler createAlgoBandPowerChannelHandler() {
     return new StreamHandler() {
       @Override
       public void onListen(Object o, EventSink eventSink) {
@@ -392,7 +393,7 @@ public class FlutterMindwaveMobile2Plugin implements FlutterPlugin {
     };
   }
 
-  private StreamHandler createAlgoBlinkHandler() {
+  private StreamHandler createAlgoBlinkChannelHandler() {
     return new StreamHandler() {
       @Override
       public void onListen(Object o, EventSink eventSink) {

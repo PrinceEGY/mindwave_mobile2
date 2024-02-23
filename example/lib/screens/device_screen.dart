@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:flutter_mindwave_mobile2/AlgoBandPower.dart';
+import 'package:flutter_mindwave_mobile2/AlgoStateReason.dart';
 import 'package:flutter_mindwave_mobile2/BandPower.dart';
 import 'package:flutter_mindwave_mobile2/HeadsetState.dart';
 import 'package:flutter_mindwave_mobile2/flutter_mindwave_mobile2.dart';
@@ -20,11 +22,14 @@ class DeviceScreen extends StatefulWidget {
 class _DeviceScreenState extends State<DeviceScreen> {
   final FlutterMindwaveMobile2 headset = FlutterMindwaveMobile2();
   HeadsetState _headsetState = HeadsetState.DISCONNECTED;
+  AlgoState _algoState = AlgoState.UNINTIED;
+  AlgoReason _algoReason = AlgoReason.NO_BASELINE;
 
   late StreamSubscription<HeadsetState>? _headsetStateSubscription;
+  late StreamSubscription<Map>? _algoStateReasonSubscription;
 
-  bool algoDataListen = false;
-  bool streamDataListen = false;
+  bool streamDataListen = true;
+  bool algoDataListen = true;
 
   @override
   void initState() {
@@ -38,11 +43,21 @@ class _DeviceScreenState extends State<DeviceScreen> {
         setState(() {});
       }
     });
+    _algoStateReasonSubscription =
+        headset.onAlgoStateReasonChange().listen((state) {
+      _algoState = state['State'];
+      _algoReason = state['Reason'];
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 
   @override
   void dispose() {
     _headsetStateSubscription?.cancel();
+    _algoStateReasonSubscription?.cancel();
+    headset.disconnect();
     super.dispose();
   }
 
@@ -87,9 +102,9 @@ class _DeviceScreenState extends State<DeviceScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        Text(
+        const Text(
           "MindWave State",
-          style: Theme.of(context).textTheme.titleLarge,
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         ElevatedButton(
           onPressed: null,
@@ -150,22 +165,23 @@ class _DeviceScreenState extends State<DeviceScreen> {
       builder: (context, snapshot) => Column(
         children: [
           Text(title, style: Theme.of(context).textTheme.bodyLarge),
-          Text(snapshot.hasData ? snapshot.data : "N/A",
+          Text(snapshot.hasData ? "${snapshot.data}" : "N/A",
               style: Theme.of(context).textTheme.bodyMedium),
         ],
       ),
     );
   }
 
-  Widget buildBandPowerStreamWidget(BuildContext context, Stream stream) {
+  Widget buildBandPowerStreamWidget(BuildContext context) {
     return StreamBuilder(
-      stream: stream,
+      stream: headset.onBandPowerUpdate(),
       builder: (context, snapshot) {
         BandPower? bandPower;
         if (snapshot.hasData) bandPower = snapshot.data;
         return Column(
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Column(
                   children: [
@@ -199,7 +215,11 @@ class _DeviceScreenState extends State<DeviceScreen> {
                 ),
               ],
             ),
+            const SizedBox(
+              height: 10,
+            ),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Column(
                   children: [
@@ -251,9 +271,153 @@ class _DeviceScreenState extends State<DeviceScreen> {
                 context, "Attention", headset.onAttentionUpdate()),
             buildSingleValueStreamWidget(
                 context, "Meditation", headset.onMeditationUpdate()),
+            buildSingleValueStreamWidget(
+                context, "Signal Quality", headset.onSignalQualityUpdate()),
           ],
         ),
-        buildBandPowerStreamWidget(context, headset.onBandPowerUpdate()),
+        const SizedBox(height: 10),
+        buildBandPowerStreamWidget(context),
+      ],
+    );
+  }
+
+  Widget buildAlgoStateReasonHeaderWidget(BuildContext context) {
+    return Column(
+      children: [
+        const Text(
+          "AlgoSdk",
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Column(
+              children: [
+                const Text(
+                  "State: ",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                ),
+                Text(
+                  _algoState.name,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+            Column(
+              children: [
+                const Text(
+                  "Reason: ",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                ),
+                Text(
+                  _algoReason.name,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget buildAlgoBandPowerStreamWidget(BuildContext context) {
+    return StreamBuilder(
+      stream: headset.onAlgoBandPowerUpdate(),
+      builder: (context, snapshot) {
+        AlgoBandPower? algoBandPower;
+        if (snapshot.hasData) algoBandPower = snapshot.data;
+        return Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Column(
+                  children: [
+                    Text("Delta", style: Theme.of(context).textTheme.bodyLarge),
+                    Text(snapshot.hasData ? "${algoBandPower!.delta}" : "N/A",
+                        style: Theme.of(context).textTheme.bodyMedium),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Text("Theta", style: Theme.of(context).textTheme.bodyLarge),
+                    Text(snapshot.hasData ? "${algoBandPower!.theta}" : "N/A",
+                        style: Theme.of(context).textTheme.bodyMedium),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Text("lowAlpha",
+                        style: Theme.of(context).textTheme.bodyLarge),
+                    Text(snapshot.hasData ? "${algoBandPower!.alpha}" : "N/A",
+                        style: Theme.of(context).textTheme.bodyMedium),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Column(
+                  children: [
+                    Text("lowBeta",
+                        style: Theme.of(context).textTheme.bodyLarge),
+                    Text(snapshot.hasData ? "${algoBandPower!.beta}" : "N/A",
+                        style: Theme.of(context).textTheme.bodyMedium),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Text("highBeta",
+                        style: Theme.of(context).textTheme.bodyLarge),
+                    Text(snapshot.hasData ? "${algoBandPower!.gamma}" : "N/A",
+                        style: Theme.of(context).textTheme.bodyMedium),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget buildAlgoBlinkDetectWidget(BuildContext conetxt) {
+    return StreamBuilder(
+      stream: headset.onBlink(),
+      builder: (context, snapshot) => Column(
+        children: [
+          Text("Blink Detection", style: Theme.of(context).textTheme.bodyLarge),
+          Text(
+              snapshot.hasData
+                  ? "Blink Detected with strength:${snapshot.data} at time${DateTime.now().minute}:${DateTime.now().second}:${DateTime.now().millisecond}"
+                  : "N/A",
+              style: Theme.of(context).textTheme.bodyMedium),
+        ],
+      ),
+    );
+  }
+
+  Widget buildAlgoStreamDataWidget(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            buildSingleValueStreamWidget(
+                context, "Attention", headset.onAlgoAttentionUpdate()),
+            buildSingleValueStreamWidget(
+                context, "Meditation", headset.onAlgoMeditationUpdate()),
+            buildSingleValueStreamWidget(
+                context, "Signal Quality", headset.onAlgoSignalQualityUpdate()),
+          ],
+        ),
+        const SizedBox(height: 10),
+        buildAlgoBandPowerStreamWidget(context),
+        buildAlgoBlinkDetectWidget(context),
       ],
     );
   }
@@ -272,12 +436,15 @@ class _DeviceScreenState extends State<DeviceScreen> {
           child: Column(
             children: [
               buildStateWidget(context),
-              // TODO:: SIGNAL QUALITY
               const Divider(height: 20, color: Colors.black),
               buildSwitchStreamWidget(context),
               buildSwitchAlgoWidget(context),
               const Divider(height: 20, color: Colors.black),
               if (streamDataListen) buildStreamDataWidget(context),
+              const Divider(height: 20, color: Colors.black),
+              buildAlgoStateReasonHeaderWidget(context),
+              const SizedBox(height: 10),
+              if (algoDataListen) buildAlgoStreamDataWidget(context),
             ],
           ),
         ),
