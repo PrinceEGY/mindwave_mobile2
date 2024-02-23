@@ -2,10 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:flutter_mindwave_mobile2/BandPower.dart';
 import 'package:flutter_mindwave_mobile2/HeadsetState.dart';
 import 'package:flutter_mindwave_mobile2/flutter_mindwave_mobile2.dart';
 
-import '../utils/snackbar.dart';
+import '../util/snackbar_popup.dart';
 
 class DeviceScreen extends StatefulWidget {
   final BluetoothDevice device;
@@ -19,24 +20,29 @@ class DeviceScreen extends StatefulWidget {
 class _DeviceScreenState extends State<DeviceScreen> {
   final FlutterMindwaveMobile2 headset = FlutterMindwaveMobile2();
   HeadsetState _headsetState = HeadsetState.DISCONNECTED;
-  final bool _isConnecting = false;
 
-  StreamSubscription? _headsetStateSubscription;
-  StreamSubscription? _attentionSubscription;
-  StreamSubscription? _meditationSubscription;
+  late StreamSubscription<HeadsetState>? _headsetStateSubscription;
 
-  int? _attentionData;
-  int? _meditationData;
-
-  bool testStream = false;
+  bool algoDataListen = false;
+  bool streamDataListen = false;
 
   @override
   void initState() {
     super.initState();
+    _headsetStateSubscription = headset.onStateChange().listen((state) {
+      _headsetState = state;
+      if (state == HeadsetState.DISCONNECTED) {
+        headset.disconnect();
+      }
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 
   @override
   void dispose() {
+    _headsetStateSubscription?.cancel();
     super.dispose();
   }
 
@@ -44,54 +50,30 @@ class _DeviceScreenState extends State<DeviceScreen> {
     return _headsetState == HeadsetState.WORKING;
   }
 
-  void headsetStateListener(HeadsetState state) {
-    debugPrint("HeadsetState: ${state.name}\n");
-    if (state == HeadsetState.DISCONNECTED) {
-      headset.disconnect();
-    }
-    setState(() {
-      _headsetState = state;
-    });
-  }
-
   Future onConnectPressed() async {
-    debugPrint(await FlutterMindwaveMobile2.instance.connect()
-        ? "F:Connected Successfully"
-        : "F:Couldn't connect Successfully");
+    try {
+      await FlutterMindwaveMobile2.instance.connect();
+    } catch (e) {
+      if (context.mounted) {
+        showSnackBarPopup(
+            context: context, text: e.toString(), color: Colors.red);
+      }
+    }
   }
 
   Future onDisconnectPressed() async {
-    debugPrint(await FlutterMindwaveMobile2.instance.disconnect()
-        ? "F:Disconnected Successfully"
-        : "F:Couldn't disconnect");
-  }
-
-  Future onRequestMtuPressed() async {
     try {
-      await widget.device.requestMtu(512, predelay: 0);
-      Snackbar.show(ABC.c, "Request Mtu: Success", success: true);
+      await FlutterMindwaveMobile2.instance.disconnect();
     } catch (e) {
-      Snackbar.show(ABC.c, prettyException("Change Mtu Error:", e),
-          success: false);
+      if (context.mounted) {
+        showSnackBarPopup(
+            context: context, text: e.toString(), color: Colors.red);
+      }
     }
-  }
-
-  Widget buildSpinner(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(14.0),
-      child: AspectRatio(
-        aspectRatio: 1.0,
-        child: CircularProgressIndicator(
-          backgroundColor: Colors.black12,
-          color: Colors.black26,
-        ),
-      ),
-    );
   }
 
   Widget buildConnectButton(BuildContext context) {
     return Row(children: [
-      if (_isConnecting) buildSpinner(context),
       TextButton(
         onPressed: isWorking ? onDisconnectPressed : onConnectPressed,
         child: Text(
@@ -101,77 +83,201 @@ class _DeviceScreenState extends State<DeviceScreen> {
     ]);
   }
 
+  Widget buildStateWidget(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Text(
+          "MindWave State",
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        ElevatedButton(
+          onPressed: null,
+          style: ElevatedButton.styleFrom(
+            disabledBackgroundColor: _headsetState == HeadsetState.WORKING
+                ? Colors.green
+                : Colors.red,
+            disabledForegroundColor: Colors.white,
+          ),
+          child: Text(_headsetState.name),
+        ),
+      ],
+    );
+  }
+
+  Widget buildSwitchStreamWidget(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        const Text(
+          "Listen to StreamSDK Stream",
+          style: TextStyle(fontSize: 18),
+        ),
+        Switch(
+          activeTrackColor: Colors.green,
+          value: streamDataListen,
+          onChanged: (value) => setState(() {
+            streamDataListen = value;
+          }),
+        )
+      ],
+    );
+  }
+
+  Widget buildSwitchAlgoWidget(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        const Text(
+          "Listen to AlgoSDK Stream",
+          style: TextStyle(fontSize: 18),
+        ),
+        Switch(
+          activeTrackColor: Colors.green,
+          value: algoDataListen,
+          onChanged: (value) => setState(() {
+            algoDataListen = value;
+          }),
+        )
+      ],
+    );
+  }
+
+  Widget buildSingleValueStreamWidget(
+      BuildContext context, String title, Stream stream) {
+    return StreamBuilder(
+      stream: stream,
+      builder: (context, snapshot) => Column(
+        children: [
+          Text(title, style: Theme.of(context).textTheme.bodyLarge),
+          Text(snapshot.hasData ? snapshot.data : "N/A",
+              style: Theme.of(context).textTheme.bodyMedium),
+        ],
+      ),
+    );
+  }
+
+  Widget buildBandPowerStreamWidget(BuildContext context, Stream stream) {
+    return StreamBuilder(
+      stream: stream,
+      builder: (context, snapshot) {
+        BandPower? bandPower;
+        if (snapshot.hasData) bandPower = snapshot.data;
+        return Column(
+          children: [
+            Row(
+              children: [
+                Column(
+                  children: [
+                    Text("Delta", style: Theme.of(context).textTheme.bodyLarge),
+                    Text(snapshot.hasData ? "${bandPower!.delta}" : "N/A",
+                        style: Theme.of(context).textTheme.bodyMedium),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Text("Theta", style: Theme.of(context).textTheme.bodyLarge),
+                    Text(snapshot.hasData ? "${bandPower!.theta}" : "N/A",
+                        style: Theme.of(context).textTheme.bodyMedium),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Text("lowAlpha",
+                        style: Theme.of(context).textTheme.bodyLarge),
+                    Text(snapshot.hasData ? "${bandPower!.lowAlpha}" : "N/A",
+                        style: Theme.of(context).textTheme.bodyMedium),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Text("highAlpha",
+                        style: Theme.of(context).textTheme.bodyLarge),
+                    Text(snapshot.hasData ? "${bandPower!.highAlpha}" : "N/A",
+                        style: Theme.of(context).textTheme.bodyMedium),
+                  ],
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Column(
+                  children: [
+                    Text("lowBeta",
+                        style: Theme.of(context).textTheme.bodyLarge),
+                    Text(snapshot.hasData ? "${bandPower!.delta}" : "N/A",
+                        style: Theme.of(context).textTheme.bodyMedium),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Text("highBeta",
+                        style: Theme.of(context).textTheme.bodyLarge),
+                    Text(snapshot.hasData ? "${bandPower!.theta}" : "N/A",
+                        style: Theme.of(context).textTheme.bodyMedium),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Text("lowGamma",
+                        style: Theme.of(context).textTheme.bodyLarge),
+                    Text(snapshot.hasData ? "${bandPower!.lowAlpha}" : "N/A",
+                        style: Theme.of(context).textTheme.bodyMedium),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Text("midGamma",
+                        style: Theme.of(context).textTheme.bodyLarge),
+                    Text(snapshot.hasData ? "${bandPower!.highAlpha}" : "N/A",
+                        style: Theme.of(context).textTheme.bodyMedium),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget buildStreamDataWidget(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            buildSingleValueStreamWidget(
+                context, "Attention", headset.onAttentionUpdate()),
+            buildSingleValueStreamWidget(
+                context, "Meditation", headset.onMeditationUpdate()),
+          ],
+        ),
+        buildBandPowerStreamWidget(context, headset.onBandPowerUpdate()),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ScaffoldMessenger(
-      key: Snackbar.snackBarKeyC,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(widget.device.platformName),
-          actions: [buildConnectButton(context)],
-        ),
-        body: SingleChildScrollView(
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.device.platformName),
+        actions: [buildConnectButton(context)],
+      ),
+      body: SingleChildScrollView(
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.all(20),
           child: Column(
-            children: <Widget>[
-              Text("State: ${_headsetState.name}"),
-              ElevatedButton(
-                onPressed: () => _headsetStateSubscription == null
-                    ? _headsetStateSubscription = FlutterMindwaveMobile2
-                        .instance
-                        .onStateChange(headsetStateListener)
-                    : null,
-                child: const Text("Headset State Listen"),
-              ),
-              ElevatedButton(
-                onPressed: () => _headsetStateSubscription?.cancel(),
-                child: const Text("Headset State Stop Listening"),
-              ),
-              const SizedBox(
-                height: 50,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  testStream
-                      ? StreamBuilder(
-                          stream: FlutterMindwaveMobile2.instance
-                              .onAttentionUpdate(),
-                          builder: (context, snapshot) {
-                            return Text(
-                                snapshot.hasData ? "${snapshot.data}" : "NA");
-                          })
-                      : Text("testStraem OFF"),
-                  ElevatedButton(
-                      onPressed: () => setState(() {
-                            testStream = !testStream;
-                          }),
-                      child: const Text("Attention Listen")),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                      onPressed: () => _meditationSubscription =
-                          FlutterMindwaveMobile2.instance.onMeditationUpdate(
-                              (value) =>
-                                  setState(() => _meditationData = value)),
-                      child: const Text("Meditation Listen")),
-                  Text("$_meditationData"),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                      onPressed: () => _meditationSubscription =
-                          FlutterMindwaveMobile2.instance.onRawUpdate(
-                              (List<int> value) => debugPrint(
-                                  "Raw is Received, Length: ${value.length}, First sample: ${value.first}, Last sample: ${value.last}")),
-                      child: const Text("Raw Listen")),
-                  const Text("Raw Placeholder"),
-                ],
-              ),
+            children: [
+              buildStateWidget(context),
+              // TODO:: SIGNAL QUALITY
+              const Divider(height: 20, color: Colors.black),
+              buildSwitchStreamWidget(context),
+              buildSwitchAlgoWidget(context),
+              const Divider(height: 20, color: Colors.black),
+              if (streamDataListen) buildStreamDataWidget(context),
             ],
           ),
         ),

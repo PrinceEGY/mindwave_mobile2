@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
-import '../utils/snackbar.dart';
+import '../util/snackbar_popup.dart';
 
 class BluetoothOffScreen extends StatelessWidget {
   const BluetoothOffScreen({Key? key, this.adapterState}) : super(key: key);
@@ -40,8 +40,10 @@ class BluetoothOffScreen extends StatelessWidget {
               await FlutterBluePlus.turnOn();
             }
           } catch (e) {
-            Snackbar.show(ABC.a, prettyException("Error Turning On:", e),
-                success: false);
+            if (context.mounted) {
+              showSnackBarPopup(
+                  context: context, text: e.toString(), color: Colors.red);
+            }
           }
         },
       ),
@@ -50,19 +52,16 @@ class BluetoothOffScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScaffoldMessenger(
-      key: Snackbar.snackBarKeyA,
-      child: Scaffold(
-        backgroundColor: Colors.lightBlue,
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              buildBluetoothOffIcon(context),
-              buildTitle(context),
-              if (Platform.isAndroid) buildTurnOnButton(context),
-            ],
-          ),
+    return Scaffold(
+      backgroundColor: Colors.lightBlue,
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            buildBluetoothOffIcon(context),
+            buildTitle(context),
+            if (Platform.isAndroid) buildTurnOnButton(context),
+          ],
         ),
       ),
     );

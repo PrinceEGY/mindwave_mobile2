@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:flutter/services.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:flutter_mindwave_mobile2/flutter_mindwave_mobile2.dart';
 
 import 'screens/bluetooth_off_screen.dart';
 import 'screens/scan_screen.dart';
@@ -61,11 +59,9 @@ class BluetoothAdapterStateObserver extends NavigatorObserver {
   void didPush(Route route, Route? previousRoute) {
     super.didPush(route, previousRoute);
     if (route.settings.name == '/DeviceScreen') {
-      // Start listening to Bluetooth state changes when a new route is pushed
       _adapterStateSubscription ??=
           FlutterBluePlus.adapterState.listen((state) {
         if (state != BluetoothAdapterState.on) {
-          // Pop the current route if Bluetooth is off
           navigator?.pop();
         }
       });

@@ -1,13 +1,11 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_mindwave_mobile2/flutter_mindwave_mobile2.dart';
 
+import '../util/snackbar_popup.dart';
 import 'device_screen.dart';
-import '../utils/snackbar.dart';
-import '../widgets/system_device_tile.dart';
 import '../widgets/scan_result_tile.dart';
 
 class ScanScreen extends StatefulWidget {
@@ -34,7 +32,8 @@ class _ScanScreenState extends State<ScanScreen> {
         setState(() {});
       }
     }, onError: (e) {
-      Snackbar.show(ABC.b, prettyException("Scan Error:", e), success: false);
+      showSnackBarPopup(
+          context: context, text: e.toString(), color: Colors.red);
     });
 
     _isScanningSubscription = FlutterBluePlus.isScanning.listen((state) {
@@ -56,14 +55,18 @@ class _ScanScreenState extends State<ScanScreen> {
     try {
       _systemDevices = await FlutterBluePlus.systemDevices;
     } catch (e) {
-      Snackbar.show(ABC.b, prettyException("System Devices Error:", e),
-          success: false);
+      if (context.mounted) {
+        showSnackBarPopup(
+            context: context, text: e.toString(), color: Colors.red);
+      }
     }
     try {
       await FlutterBluePlus.startScan(timeout: const Duration(seconds: 15));
     } catch (e) {
-      Snackbar.show(ABC.b, prettyException("Start Scan Error:", e),
-          success: false);
+      if (context.mounted) {
+        showSnackBarPopup(
+            context: context, text: e.toString(), color: Colors.red);
+      }
     }
     if (mounted) {
       setState(() {});
@@ -74,19 +77,29 @@ class _ScanScreenState extends State<ScanScreen> {
     try {
       FlutterBluePlus.stopScan();
     } catch (e) {
-      Snackbar.show(ABC.b, prettyException("Stop Scan Error:", e),
-          success: false);
+      if (context.mounted) {
+        showSnackBarPopup(
+            context: context, text: e.toString(), color: Colors.red);
+      }
     }
   }
 
-  void onConnectPressed(BluetoothDevice device) async {
-    debugPrint(await FlutterMindwaveMobile2.instance.init(device.remoteId.str)
-        ? "F:Headset Initialized Successfully"
-        : "F:Couldn't Initialize Headset");
+  void onOpenPressed(BluetoothDevice device) async {
+    try {
+      await FlutterMindwaveMobile2.instance.init(device.remoteId.str);
+      onStopPressed();
+    } catch (e) {
+      if (context.mounted) {
+        showSnackBarPopup(
+            context: context, text: e.toString(), color: Colors.red);
+      }
+    }
     MaterialPageRoute route = MaterialPageRoute(
         builder: (context) => DeviceScreen(device: device),
         settings: const RouteSettings(name: '/DeviceScreen'));
-    Navigator.of(context).push(route);
+    if (context.mounted) {
+      Navigator.of(context).push(route);
+    }
   }
 
   Future onRefresh() {
@@ -112,29 +125,12 @@ class _ScanScreenState extends State<ScanScreen> {
     }
   }
 
-  List<Widget> _buildSystemDeviceTiles(BuildContext context) {
-    return _systemDevices
-        .map(
-          (d) => SystemDeviceTile(
-            device: d,
-            onOpen: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => DeviceScreen(device: d),
-                settings: const RouteSettings(name: '/DeviceScreen'),
-              ),
-            ),
-            onConnect: () => onConnectPressed(d),
-          ),
-        )
-        .toList();
-  }
-
   List<Widget> _buildScanResultTiles(BuildContext context) {
     return _scanResults
         .map(
           (r) => ScanResultTile(
             result: r,
-            onTap: () => onConnectPressed(r.device),
+            onTap: () => onOpenPressed(r.device),
           ),
         )
         .toList();
@@ -142,23 +138,19 @@ class _ScanScreenState extends State<ScanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ScaffoldMessenger(
-      key: Snackbar.snackBarKeyB,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Find Devices'),
-        ),
-        body: RefreshIndicator(
-          onRefresh: onRefresh,
-          child: ListView(
-            children: <Widget>[
-              ..._buildSystemDeviceTiles(context),
-              ..._buildScanResultTiles(context),
-            ],
-          ),
-        ),
-        floatingActionButton: buildScanButton(context),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Bluetooth Devices'),
       ),
+      body: RefreshIndicator(
+        onRefresh: onRefresh,
+        child: ListView(
+          children: <Widget>[
+            ..._buildScanResultTiles(context),
+          ],
+        ),
+      ),
+      floatingActionButton: buildScanButton(context),
     );
   }
 }

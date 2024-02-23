@@ -77,18 +77,18 @@ class FlutterMindwaveMobile2 {
         .map((value) => value as int);
   }
 
-  Stream<int> onMeditationUpdate(listenStream) {
+  Stream<int> onMeditationUpdate() {
     return _meditationChannel
         .receiveBroadcastStream()
         .map((value) => value as int);
   }
 
-  Stream<BandPower> onBandPowerUpdate(listenStream) {
+  Stream<BandPower> onBandPowerUpdate() {
     return _bandPowerChannel.receiveBroadcastStream().map((event) => BandPower(
         event[0], event[1], event[2], event[3], event[4], event[5], event[6]));
   }
 
-  Stream<List<int>> onRawUpdate(listenStream) {
+  Stream<List<int>> onRawUpdate() {
     return _rawChannel
         .receiveBroadcastStream()
         .map((event) => event as List<int>);
@@ -97,37 +97,37 @@ class FlutterMindwaveMobile2 {
   // ****************************
   // **** Algo SDK Streams ****
   // ****************************
-  Stream<Map> onAlgoStateReasonChange(listenStream) {
+  Stream<Map> onAlgoStateReasonChange() {
     return _algoStateReasonChannel.receiveBroadcastStream().map((event) => {
           "State": AlgoState.fromValue(event['State']),
           "Reason": AlgoReason.fromValue(event['Reason'])
         });
   }
 
-  Stream<int> onAlgoAttentionUpdate(listenStream) {
+  Stream<int> onAlgoAttentionUpdate() {
     return _algoAttentionChannel
         .receiveBroadcastStream()
         .map((value) => value as int);
   }
 
-  Stream<int> onAlgoMeditationUpdate(listenStream) {
+  Stream<int> onAlgoMeditationUpdate() {
     return _algoMeditationChannel
         .receiveBroadcastStream()
         .map((value) => value as int);
   }
 
-  Stream<AlgoBandPower> onAlgoBandPowerUpdate(listenStream) {
+  Stream<AlgoBandPower> onAlgoBandPowerUpdate() {
     return _algoBandPowerChannel.receiveBroadcastStream().map((event) =>
         AlgoBandPower(event[0], event[1], event[2], event[3], event[4]));
   }
 
-  Stream<int> onAlgoSignalQualityUpdate(listenStream) {
+  Stream<int> onAlgoSignalQualityUpdate() {
     return _algoSignalQualityChannel
         .receiveBroadcastStream()
         .map((value) => value as int);
   }
 
-  Stream<int> onBlink(listenStream) {
+  Stream<int> onBlink() {
     return _algoBlinkChannel
         .receiveBroadcastStream()
         .map((value) => value as int);
