@@ -33,6 +33,7 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   flutter_blue_plus:
+  fl_chart:
   flutter_test:
     sdk: flutter
 
