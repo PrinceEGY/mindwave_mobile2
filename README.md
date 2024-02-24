@@ -1,4 +1,5 @@
 # mindwave_mobile2
+[![Pub Version](https://img.shields.io/pub/v/mindwave_mobile2)](https://pub.dartlang.org/packages/mindwave_mobile2)
 
 A plugin the provides a Flutter interface for connecting with [Neurosky MindWave Mobile 2](https://store.neurosky.com/pages/mindwave) Headset.
 This plugin is built over the android SDK provided from NeuroSky [Android Developer Tools 4.2](https://store.neurosky.com/products/android-developer-tools-4), utlizing both Stream SDK and AlgoSDK.
