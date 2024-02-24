@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:mindwave_mobile2/enums/algo_band_power.dart';
+import 'package:mindwave_mobile2/algo_band_power.dart';
 import 'package:mindwave_mobile2/enums/algo_state_reason.dart';
-import 'package:mindwave_mobile2/enums/band_power.dart';
+import 'package:mindwave_mobile2/band_power.dart';
 import 'package:mindwave_mobile2/enums/headset_state.dart';
 import 'package:mindwave_mobile2/mindwave_mobile2.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -23,7 +23,7 @@ class DeviceScreen extends StatefulWidget {
 class _DeviceScreenState extends State<DeviceScreen> {
   final MindwaveMobile2 headset = MindwaveMobile2();
   HeadsetState _headsetState = HeadsetState.DISCONNECTED;
-  AlgoState _algoState = AlgoState.UNINTIED;
+  AlgoState _algoState = AlgoState.INITED;
   AlgoReason _algoReason = AlgoReason.SIGNAL_QUALITY;
 
   late StreamSubscription<HeadsetState>? _headsetStateSubscription;
