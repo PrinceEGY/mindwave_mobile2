@@ -1,5 +1,5 @@
 name: mindwave_mobile2
-description: "Flutter interface for Neurosky Mindwave Mobile 2 headset."
+description: "A Plugin that provides a Flutter interface for Neurosky Mindwave Mobile 2 headset."
 version: 1.0.0
 homepage: https://github.com/PrinceEGY/mindwave_mobile2
 

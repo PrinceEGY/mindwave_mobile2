@@ -1,11 +1,10 @@
 import 'dart:async';
-
 import 'package:flutter/services.dart';
-import 'package:mindwave_mobile2/AlgoStateReason.dart';
 
-import 'AlgoBandPower.dart';
-import 'BandPower.dart';
-import 'HeadsetState.dart';
+import 'enums/algo_band_power.dart';
+import 'enums/algo_state_reason.dart';
+import 'enums/band_power.dart';
+import 'enums/headset_state.dart';
 
 const String NAMESPACE = 'mindwave_mobile2';
 

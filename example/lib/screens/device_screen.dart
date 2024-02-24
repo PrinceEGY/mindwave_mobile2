@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:mindwave_mobile2/AlgoBandPower.dart';
-import 'package:mindwave_mobile2/AlgoStateReason.dart';
-import 'package:mindwave_mobile2/BandPower.dart';
-import 'package:mindwave_mobile2/HeadsetState.dart';
+import 'package:mindwave_mobile2/enums/algo_band_power.dart';
+import 'package:mindwave_mobile2/enums/algo_state_reason.dart';
+import 'package:mindwave_mobile2/enums/band_power.dart';
+import 'package:mindwave_mobile2/enums/headset_state.dart';
 import 'package:mindwave_mobile2/mindwave_mobile2.dart';
 import 'package:fl_chart/fl_chart.dart';
 
