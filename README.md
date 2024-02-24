@@ -1,22 +1,22 @@
 # mindwave_mobile2
 [![Pub Version](https://img.shields.io/pub/v/mindwave_mobile2)](https://pub.dartlang.org/packages/mindwave_mobile2)
 
-A plugin the provides a Flutter interface for connecting with [Neurosky MindWave Mobile 2](https://store.neurosky.com/pages/mindwave) Headset.
-This plugin is built over the android SDK provided from NeuroSky [Android Developer Tools 4.2](https://store.neurosky.com/products/android-developer-tools-4), utlizing both Stream SDK and AlgoSDK.
+A plugin that provides a Flutter interface for connecting with [Neurosky MindWave Mobile 2](https://store.neurosky.com/pages/mindwave) Headset.
+This plugin is built over the Android SDK provided by NeuroSky [Android Developer Tools 4.2](https://store.neurosky.com/products/android-developer-tools-4), utilizing both Stream SDK and AlgoSDK.
 
 <u>**Note that:** The plugin is currently **only supports android**, feel free to **contribute** to add IOS support or any other functionalties.</u>
 
 <u>**Note that:** The plugin is not offical or sponsored by [Neurosky](http://neurosky.com/).</u>
 
 ## Example
-You can try an example utlizing this plugin.
+You can try an example utilizing this plugin.
 ```
 cd ./example
 flutter run
 ```
-<img src='https://github.com/PrinceEGY/mindwave_mobile2/blob/main/site/example_scan_screen.jpg' width='250' height='510'/>..<img src='https://github.com/PrinceEGY/mindwave_mobile2/blob/main/site/example_disconnected.jpg' width='250' height='510'/>
+<img alt="scan screen" src='https://github.com/PrinceEGY/mindwave_mobile2/blob/main/site/example_scan_screen.jpg?raw=true' width='250' height='510'/>..<img alt="disconnected screen" src='https://github.com/PrinceEGY/mindwave_mobile2/blob/main/site/example_disconnected.jpg?raw=true' width='250' height='510'/>
 
-<img src='https://github.com/PrinceEGY/mindwave_mobile2/blob/main/site/example_connected_raw.jpg' width='250' height='510'/>..<img src='https://github.com/PrinceEGY/mindwave_mobile2/blob/main/site/example_connected_algo.jpg' width='250' height='510'/>
+<img alt="connected raw screen" src='https://github.com/PrinceEGY/mindwave_mobile2/blob/main/site/example_connected_raw.jpg?raw=true' width='250' height='510'/>..<img alt="connected algo screen" src='https://github.com/PrinceEGY/mindwave_mobile2/blob/main/site/example_connected_algo.jpg?raw=true' width='250' height='510'/>
 
 
 
@@ -27,9 +27,9 @@ dependencies:
   ......
   mindwave_mobile_2: '^1.0.0'
 ```
-The plugin requires the MindWave mobile 2 device ID in order to initialize, you can get this using any bluetooth package such as [FlutterBluePlus](https://pub.dev/packages/flutter_blue_plus).
+The plugin requires the MindWave mobile 2 device ID to initialize, you can get this using any Bluetooth package such as [FlutterBluePlus](https://pub.dev/packages/flutter_blue_plus).
 
-### Initalizing MindWave
+### Initializing MindWave
 
 ```dart
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
@@ -55,9 +55,9 @@ MindwaveMobile2.instance.disconnect();
 ```
 
 ## Events Streamers
-Most of the plugin functionalties are built as event streamers, every headset state or data are emitted as events.
+Most of the plugin functions are built as event streamers, every headset state or data is emitted as events.
 
-**Note that: the plugin provides all events interfaces for both StreamSDK and AlgoSDK, there is common events between both SDK's that returns exactly the same results, you shall use any of them.**
+**Note that: the plugin provides all events interfaces for both StreamSDK and AlgoSDK, there are common events between both SDKs that return exactly the same results, you shall use any of them.**
 ### - Headset State
 Emits the current state of the Headset.
 ```dart
