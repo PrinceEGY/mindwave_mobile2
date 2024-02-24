@@ -6,7 +6,7 @@ This plugin is built over the Android SDK provided by NeuroSky [Android Develope
 
 <u>**Note that:** The plugin is currently **only supports android**, feel free to **contribute** to add IOS support or any other functionalties.</u>
 
-<u>**Note that:** The plugin is not offical or sponsored by [Neurosky](http://neurosky.com/).</u>
+<u>**Note that:** The plugin is not offical or sponsored by [Neurosky](https://neurosky.com/).</u>
 
 ## Example
 You can try an example utilizing this plugin.
