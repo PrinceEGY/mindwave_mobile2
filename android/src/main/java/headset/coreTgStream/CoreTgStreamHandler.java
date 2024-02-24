@@ -2,28 +2,32 @@ package headset.coreTgStream;
 
 import android.util.Log;
 import com.neurosky.AlgoSdk.NskAlgoDataType;
+import com.neurosky.AlgoSdk.NskAlgoSdk;
 import com.neurosky.connection.ConnectionStates;
 import com.neurosky.connection.DataType.MindDataType;
+import com.neurosky.connection.EEGPower;
 import com.neurosky.connection.TgStreamHandler;
 import com.neurosky.connection.TgStreamReader;
 import headset.coreNskAlgo.CoreNskAlgoSdk;
 import headset.coreNskAlgo.CoreNskAlgoSdkEventsController;
 import headset.events.AttentionData;
 import headset.events.MeditationData;
+import headset.events.SignalQualityData;
 import headset.events.headsetStateChange.HeadsetStateChangeEvent;
 import headset.events.headsetStateChange.HeadsetStateChangeEventHandler;
-import headset.events.headsetStateChange.HeadsetStateTypes;
+import headset.events.headsetStateChange.HeadsetState;
 import headset.events.headsetStateChange.IHeadsetStateChangeEventListener;
 import headset.events.nskAlgo.IAlgoEventListener;
 import headset.events.nskAlgo.NskAlgoEvent;
 import headset.events.stream.IStreamEventListener;
 import headset.events.stream.StreamEvent;
 import headset.events.stream.streamAttention.StreamAttentionEvent;
-import headset.events.stream.streamEEG.StreamEEGData;
-import headset.events.stream.streamEEG.StreamEEGDataEvent;
+import headset.events.stream.streamBandPower.StreamBandPower;
+import headset.events.stream.streamBandPower.StreamBandPowerEvent;
 import headset.events.stream.streamMeditation.StreamMeditationEvent;
 import headset.events.stream.streamRaw.StreamRawData;
 import headset.events.stream.streamRaw.StreamRawDataEvent;
+import headset.events.stream.streamSignalQuality.StreamSignalQualityEvent;
 import java.util.EventListener;
 import java.util.Objects;
 
@@ -53,109 +57,65 @@ public class CoreTgStreamHandler implements TgStreamHandler {
   public void onDataReceived(int dataType, int data, Object obj) {
     switch (dataType) {
       case MindDataType.CODE_ATTENTION -> {
-//        Log.w("CoreTgStreamHandler", dataType+" " +data);
         short[] attValue = {(short) data};
         eventsHandler.fireEvent(new StreamAttentionEvent(this, new AttentionData(data)));
-        coreNskAlgoSdk.NskAlgoDataStream(NskAlgoDataType.NSK_ALGO_DATA_TYPE_ATT.value, attValue, 1);
+        NskAlgoSdk.NskAlgoDataStream(NskAlgoDataType.NSK_ALGO_DATA_TYPE_ATT.value, attValue, 1);
       }
-
       case MindDataType.CODE_MEDITATION -> {
+        short[] medValue = {(short) data};
         eventsHandler.fireEvent(new StreamMeditationEvent(this, new MeditationData(data)));
-//        coreNskAlgoSdk.UpdateAlgoData(NskAlgoDataType.NSK_ALGO_DATA_TYPE_MED, data, 1);
+        NskAlgoSdk.NskAlgoDataStream(NskAlgoDataType.NSK_ALGO_DATA_TYPE_MED.value, medValue, 1);
       }
-
       case MindDataType.CODE_POOR_SIGNAL -> {
-//        headsetStateEventHandler.fireEvent(
-//            new HeadsetStateChangeEvent(this, HeadsetStateTypes.POOR_SIGNAL));
-
-//        coreNskAlgoSdk.UpdateAlgoData(NskAlgoDataType.NSK_ALGO_DATA_TYPE_PQ, data, 1);
+        short[] psValue = {(short) data};
+        eventsHandler.fireEvent(new StreamSignalQualityEvent(this, new SignalQualityData(data)));
+        NskAlgoSdk.NskAlgoDataStream(NskAlgoDataType.NSK_ALGO_DATA_TYPE_PQ.value, psValue, 1);
       }
       case MindDataType.CODE_RAW -> {
         raw_data[raw_data_index++] = (short) data;
         if (raw_data_index >= 512) {
           eventsHandler.fireEvent(new StreamRawDataEvent(this, new StreamRawData(raw_data)));
-//          coreNskAlgoSdk.UpdateAlgoData(NskAlgoDataType.NSK_ALGO_DATA_TYPE_EEG, raw_data, 512);
+          NskAlgoSdk.NskAlgoDataStream(NskAlgoDataType.NSK_ALGO_DATA_TYPE_EEG.value, raw_data, 512);
           raw_data_index = 0;
         }
       }
-
-//      case MindDataType.CODE_EEGPOWER -> {
-//        int[] dataArr = ((int[]) obj);
-//        Log.w("CoreTgStreamHandler", "EEG delta: " + dataArr[0]);
-//        eventsHandler.fireEvent(new StreamEEGDataEvent(this,
-//            new StreamEEGData(dataArr[0], dataArr[1], dataArr[2], dataArr[3], dataArr[4],
-//                dataArr[5], dataArr[6], dataArr[7])));
-//      }
+      case MindDataType.CODE_EEGPOWER -> {
+        EEGPower bandPower = ((EEGPower) obj);
+        eventsHandler.fireEvent(new StreamBandPowerEvent(this,
+            new StreamBandPower(bandPower.delta, bandPower.theta, bandPower.lowAlpha,
+                bandPower.highAlpha, bandPower.lowBeta, bandPower.highBeta, bandPower.lowGamma,
+                bandPower.middleGamma)));
+      }
     }
   }
 
   @Override
   public void onChecksumFail(byte[] payload, int length, int checksum) {
+    Log.w("CoreTgStreamHandler", "CHECK_SUM_FAIL");
     headsetStateEventHandler.fireEvent(
-        new HeadsetStateChangeEvent(this, HeadsetStateTypes.CHECK_SUM_FAIL));
+        new HeadsetStateChangeEvent(this, HeadsetState.CHECK_SUM_FAIL));
   }
 
   @Override
   public void onRecordFail(int flag) {
+    Log.w("CoreTgStreamHandler", "RECORD_FAIL");
     headsetStateEventHandler.fireEvent(
-        new HeadsetStateChangeEvent(this, HeadsetStateTypes.RECORD_FAIL));
+        new HeadsetStateChangeEvent(this, HeadsetState.RECORD_FAIL));
   }
 
   @Override
   public void onStatesChanged(int connectionStates) {
+    headsetStateEventHandler.fireEvent(
+        new HeadsetStateChangeEvent(this, HeadsetState.fromValue(connectionStates)));
     switch (connectionStates) {
-      case ConnectionStates.STATE_CONNECTING -> Log.w("CoreTgStreamHandler", "Connecting...");
-
       case ConnectionStates.STATE_CONNECTED -> {
         if (Objects.nonNull(tgStreamReader)) {
-//          tgStreamReader.setGetDataTimeOutTime(20);
           tgStreamReader.start();
-          //FIXME: This is will be enabled when we have the real headset connected
-          this.coreNskAlgoSdk = new CoreNskAlgoSdk();
-          Log.w("CoreTgStreamHandler", "tgStreamReader started");
-        } else {
-          Log.w("CoreTgStreamHandler", "tgStreamReader is null");
         }
-        headsetStateEventHandler.fireEvent(
-            new HeadsetStateChangeEvent(this, HeadsetStateTypes.CONNECTED));
       }
-
-      case ConnectionStates.STATE_WORKING -> {
-//        tgStreamReader.startRecordRawData();
-        headsetStateEventHandler.fireEvent(
-            new HeadsetStateChangeEvent(this, HeadsetStateTypes.WORKING));
-      }
-
-      case ConnectionStates.STATE_GET_DATA_TIME_OUT -> {
-        Log.w("CoreTgStreamHandler", "tgStreamReader get data time out");
+      case ConnectionStates.STATE_GET_DATA_TIME_OUT, ConnectionStates.STATE_FAILED, ConnectionStates.STATE_ERROR -> {
         tgStreamReader.stop();
         tgStreamReader.close();
-        headsetStateEventHandler.fireEvent(
-            new HeadsetStateChangeEvent(this, HeadsetStateTypes.GET_DATA_TIME_OUT));
-      }
-
-      case ConnectionStates.STATE_STOPPED -> {
-        Log.w("CoreTgStreamHandler", "tgStreamReader stopped");
-        headsetStateEventHandler.fireEvent(
-            new HeadsetStateChangeEvent(this, HeadsetStateTypes.STOPPED));
-      }
-
-      case ConnectionStates.STATE_DISCONNECTED -> {
-        Log.w("CoreTgStreamHandler", "tgStreamReader disconnected");
-        headsetStateEventHandler.fireEvent(
-            new HeadsetStateChangeEvent(this, HeadsetStateTypes.DISCONNECTED));
-      }
-
-      case ConnectionStates.STATE_FAILED -> {
-        Log.w("CoreTgStreamHandler", "tgStreamReader failed");
-        headsetStateEventHandler.fireEvent(
-            new HeadsetStateChangeEvent(this, HeadsetStateTypes.CONNECTION_FAILED));
-      }
-
-      case ConnectionStates.STATE_ERROR -> {
-        Log.w("CoreTgStreamHandler", "tgStreamReader error");
-        headsetStateEventHandler.fireEvent(
-            new HeadsetStateChangeEvent(this, HeadsetStateTypes.ERROR));
       }
     }
   }
@@ -174,7 +134,6 @@ public class CoreTgStreamHandler implements TgStreamHandler {
     } else {
       throw new IllegalArgumentException("Listener not supported");
     }
-
 
   }
 

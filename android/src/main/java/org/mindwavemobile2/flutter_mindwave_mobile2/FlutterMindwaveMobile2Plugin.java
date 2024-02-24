@@ -25,13 +25,16 @@ import headset.events.nskAlgo.algoStateChange.AlgoStateChangeEvent;
 import headset.events.nskAlgo.algoStateChange.IAlgoStateChangeEventListener;
 import headset.events.stream.streamAttention.IStreamAttentionEventListener;
 import headset.events.stream.streamAttention.StreamAttentionEvent;
-import headset.events.stream.streamEEG.IStreamEEGDataEventListener;
-import headset.events.stream.streamEEG.StreamEEGData;
-import headset.events.stream.streamEEG.StreamEEGDataEvent;
+import headset.events.stream.streamBandPower.IStreamBandPowerEventListener;
+import headset.events.stream.streamBandPower.StreamBandPowerEvent;
+import headset.events.stream.streamBandPower.StreamBandPower;
+import headset.events.stream.streamBandPower.IStreamBandPowerEventListener;
 import headset.events.stream.streamMeditation.IStreamMeditationEventListener;
 import headset.events.stream.streamMeditation.StreamMeditationEvent;
 import headset.events.stream.streamRaw.IStreamRawDataEventListener;
 import headset.events.stream.streamRaw.StreamRawDataEvent;
+import headset.events.stream.streamSignalQuality.IStreamSignalQualityEventListener;
+import headset.events.stream.streamSignalQuality.StreamSignalQualityEvent;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.EventChannel.EventSink;
@@ -65,9 +68,10 @@ public class FlutterMindwaveMobile2Plugin implements FlutterPlugin {
   private EventChannel _algoBlinkChannel;
 
   IHeadsetStateChangeEventListener headsetStateEventListener;
+  IStreamSignalQualityEventListener streamSignalQualityEventListener;
   IStreamAttentionEventListener attentionEventListener;
   IStreamMeditationEventListener meditationEventListener;
-  IStreamEEGDataEventListener bandPowerEventListener;
+  IStreamBandPowerEventListener bandPowerEventListener;
   IStreamRawDataEventListener rawEventListener;
 
   IAlgoStateChangeEventListener algoStateReasonEventListener;
@@ -167,13 +171,11 @@ public class FlutterMindwaveMobile2Plugin implements FlutterPlugin {
             uiThreadHandler.post(() -> eventSink.success(event.getState().getValue()));
           }
         };
-        Log.i("Native", "HeadsetState Listener Added");
         headset.addEventListener(headsetStateEventListener);
       }
 
       @Override
       public void onCancel(Object o) {
-        Log.i("Native", "HeadsetState Listener Removed");
         headset.removeEventListener(headsetStateEventListener);
       }
     };
@@ -183,12 +185,19 @@ public class FlutterMindwaveMobile2Plugin implements FlutterPlugin {
     return new StreamHandler() {
       @Override
       public void onListen(Object o, EventSink eventSink) {
-        // TODO:
+        streamSignalQualityEventListener = new IStreamSignalQualityEventListener() {
+          @Override
+          public void onSignalQualityUpdate(StreamSignalQualityEvent event) {
+            uiThreadHandler.post(
+                () -> eventSink.success(event.getSignalQualityData().qualityLevel()));
+          }
+        };
+        headset.addEventListener(streamSignalQualityEventListener);
       }
 
       @Override
       public void onCancel(Object o) {
-        // TODO:
+        headset.removeEventListener(streamSignalQualityEventListener);
       }
     };
   }
@@ -203,13 +212,11 @@ public class FlutterMindwaveMobile2Plugin implements FlutterPlugin {
             uiThreadHandler.post(() -> eventSink.success(event.getAttentionData().attention()));
           }
         };
-        Log.i("Native", "Attention Listener Added");
         headset.addEventListener(attentionEventListener);
       }
 
       @Override
       public void onCancel(Object o) {
-        Log.i("Native", "Attention Listener Removed");
         headset.removeEventListener(attentionEventListener);
       }
     };
@@ -239,10 +246,10 @@ public class FlutterMindwaveMobile2Plugin implements FlutterPlugin {
     return new StreamHandler() {
       @Override
       public void onListen(Object o, EventSink eventSink) {
-        bandPowerEventListener = new IStreamEEGDataEventListener() {
+        bandPowerEventListener = new IStreamBandPowerEventListener() {
           @Override
-          public void onEEGDataUpdate(StreamEEGDataEvent event) {
-            StreamEEGData data = event.getEEGData();
+          public void onBandPowerUpdate(StreamBandPowerEvent event) {
+            StreamBandPower data = event.getBandPower();
             int[] EEGData = {data.delta(), data.theta(), data.lowAlpha(), data.highAlpha(),
                 data.lowAlpha(), data.highBeta(), data.lowGamma(), data.midGamma()};
             uiThreadHandler.post(() -> eventSink.success(EEGData));

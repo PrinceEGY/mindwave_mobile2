@@ -22,7 +22,6 @@ public class HeadsetStateChangeEventHandler implements
   }
 
   public void fireEvent(HeadsetStateChangeEvent event) {
-    Log.w("State Change Event", event.getState().name());
     for (IHeadsetStateChangeEventListener listener : listeners) {
       listener.onHeadsetStateChange(event);
     }

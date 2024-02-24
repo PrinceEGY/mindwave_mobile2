@@ -6,36 +6,30 @@ import java.util.Map;
 
 public class AlgoStateChangeEvent extends NskAlgoEvent {
 
-  private static final Map<Integer, AlgoStateTypes> INTEGER_ALGO_STATE_TYPES_MAP = new HashMap<Integer, AlgoStateTypes>();
-  private static final Map<Integer, AlgoStateChangeReasons> INTEGER_ALGO_STATE_CHANGE_REASONS_MAP = new HashMap<Integer, AlgoStateChangeReasons>();
-
-  static {
-    for (AlgoStateChangeReasons type : AlgoStateChangeReasons.values()) {
-      INTEGER_ALGO_STATE_CHANGE_REASONS_MAP.put(type.ordinal(), type);
-    }
-
-    for (AlgoStateTypes type : AlgoStateTypes.values()) {
-      INTEGER_ALGO_STATE_TYPES_MAP.put(type.ordinal(), type);
-    }
-  }
-
-  private final AlgoStateTypes state;
-  private final AlgoStateChangeReasons reason;
+  private final AlgoState state;
+  private final AlgoStateChangeReason reason;
 
   public AlgoStateChangeEvent(Object source, int state, int reason) {
     super(source);
-    this.state = INTEGER_ALGO_STATE_TYPES_MAP.get(state);
-    this.reason = INTEGER_ALGO_STATE_CHANGE_REASONS_MAP.get(reason);
+    this.state = AlgoState.fromValue(state);
+    this.reason = AlgoStateChangeReason.fromValue(reason);
   }
 
-  public AlgoStateTypes getState() {
+  public AlgoStateChangeEvent(Object source, AlgoState state, AlgoStateChangeReason reason) {
+    super(source);
+    this.state = state;
+    this.reason = reason;
+  }
+
+  public AlgoState getState() {
     return state;
   }
 
-  public AlgoStateChangeReasons getReason() {
+  public AlgoStateChangeReason getReason() {
     return reason;
   }
 
+  @Override
   public String toString() {
     return super.toString() + "AlgoStateChangeEvent { State: " + state + ", Reason: " + reason
         + "}";

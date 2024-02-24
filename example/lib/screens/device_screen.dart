@@ -336,22 +336,30 @@ class _DeviceScreenState extends State<DeviceScreen> {
                 Column(
                   children: [
                     Text("Delta", style: Theme.of(context).textTheme.bodyLarge),
-                    Text(snapshot.hasData ? "${algoBandPower!.delta}" : "N/A",
+                    Text(
+                        snapshot.hasData
+                            ? "${algoBandPower!.delta.toStringAsPrecision(5)} dB"
+                            : "N/A",
                         style: Theme.of(context).textTheme.bodyMedium),
                   ],
                 ),
                 Column(
                   children: [
                     Text("Theta", style: Theme.of(context).textTheme.bodyLarge),
-                    Text(snapshot.hasData ? "${algoBandPower!.theta}" : "N/A",
+                    Text(
+                        snapshot.hasData
+                            ? "${algoBandPower!.theta.toStringAsPrecision(5)} dB"
+                            : "N/A",
                         style: Theme.of(context).textTheme.bodyMedium),
                   ],
                 ),
                 Column(
                   children: [
-                    Text("lowAlpha",
-                        style: Theme.of(context).textTheme.bodyLarge),
-                    Text(snapshot.hasData ? "${algoBandPower!.alpha}" : "N/A",
+                    Text("Alpha", style: Theme.of(context).textTheme.bodyLarge),
+                    Text(
+                        snapshot.hasData
+                            ? "${algoBandPower!.alpha.toStringAsPrecision(5)} dB"
+                            : "N/A",
                         style: Theme.of(context).textTheme.bodyMedium),
                   ],
                 ),
@@ -363,17 +371,21 @@ class _DeviceScreenState extends State<DeviceScreen> {
               children: [
                 Column(
                   children: [
-                    Text("lowBeta",
-                        style: Theme.of(context).textTheme.bodyLarge),
-                    Text(snapshot.hasData ? "${algoBandPower!.beta}" : "N/A",
+                    Text("Beta", style: Theme.of(context).textTheme.bodyLarge),
+                    Text(
+                        snapshot.hasData
+                            ? "${algoBandPower!.beta.toStringAsPrecision(5)} dB"
+                            : "N/A",
                         style: Theme.of(context).textTheme.bodyMedium),
                   ],
                 ),
                 Column(
                   children: [
-                    Text("highBeta",
-                        style: Theme.of(context).textTheme.bodyLarge),
-                    Text(snapshot.hasData ? "${algoBandPower!.gamma}" : "N/A",
+                    Text("Gamma", style: Theme.of(context).textTheme.bodyLarge),
+                    Text(
+                        snapshot.hasData
+                            ? "${algoBandPower!.gamma.toStringAsPrecision(5)} dB"
+                            : "N/A",
                         style: Theme.of(context).textTheme.bodyMedium),
                   ],
                 ),
@@ -393,7 +405,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
           Text("Blink Detection", style: Theme.of(context).textTheme.bodyLarge),
           Text(
               snapshot.hasData
-                  ? "Blink Detected with strength:${snapshot.data} at time${DateTime.now().minute}:${DateTime.now().second}:${DateTime.now().millisecond}"
+                  ? "Blink Detected with strength:${snapshot.data}"
                   : "N/A",
               style: Theme.of(context).textTheme.bodyMedium),
         ],

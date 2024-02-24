@@ -1,18 +1,16 @@
 package headset.coreNskAlgo;
 
-import android.util.Log;
-import com.neurosky.AlgoSdk.NskAlgoDataType;
 import com.neurosky.AlgoSdk.NskAlgoSdk;
 import com.neurosky.AlgoSdk.NskAlgoType;
 import headset.events.AttentionData;
 import headset.events.MeditationData;
+import headset.events.SignalQualityData;
 import headset.events.nskAlgo.algoAttention.AlgoAttentionEvent;
 import headset.events.nskAlgo.algoBandPower.AlgoBandPowerData;
 import headset.events.nskAlgo.algoBandPower.AlgoBandPowerEvent;
 import headset.events.nskAlgo.algoBlink.AlgoBlinkData;
 import headset.events.nskAlgo.algoBlink.AlgoBlinkEvent;
 import headset.events.nskAlgo.algoMeditation.AlgoMeditationEvent;
-import headset.events.nskAlgo.algoSignalQuality.AlgoSignalQualityData;
 import headset.events.nskAlgo.algoSignalQuality.AlgoSignalQualityEvent;
 import headset.events.nskAlgo.algoStateChange.AlgoStateChangeEvent;
 
@@ -26,7 +24,6 @@ public class CoreNskAlgoSdk extends NskAlgoSdk {
     this.setOnStateChangeListener(new OnStateChangeListener() {
       @Override
       public void onStateChange(int state, int reason) {
-        Log.i("Algo", "State Change");
         eventsHandler.fireEvent(new AlgoStateChangeEvent(this, state, reason));
       }
     });
@@ -56,7 +53,7 @@ public class CoreNskAlgoSdk extends NskAlgoSdk {
       @Override
       public void onSignalQuality(int signalQuality) {
         eventsHandler.fireEvent(
-            new AlgoSignalQualityEvent(this, new AlgoSignalQualityData(signalQuality)));
+            new AlgoSignalQualityEvent(this, new SignalQualityData(signalQuality)));
       }
     });
 
@@ -83,10 +80,6 @@ public class CoreNskAlgoSdk extends NskAlgoSdk {
     NskAlgoUninit();
   }
 
-  public void UpdateAlgoData(NskAlgoDataType dataType, Object data, int dataLength) {
-    short[] dataArr = data instanceof Integer ? new short[]{(short) data} : (short[]) data;
-    NskAlgoDataStream(dataType.value, dataArr, dataLength);
-  }
 
   public CoreNskAlgoSdkEventsController getEventsHandler() {
     return this.eventsHandler;

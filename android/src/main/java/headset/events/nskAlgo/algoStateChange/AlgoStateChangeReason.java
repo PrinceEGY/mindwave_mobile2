@@ -1,6 +1,10 @@
 package headset.events.nskAlgo.algoStateChange;
 
-public enum AlgoStateChangeReasons {
+import headset.events.headsetStateChange.HeadsetState;
+
+public enum AlgoStateChangeReason {
+  //TODO: REMOVE TEST
+  TEST(-1),
   CONFIG_CHANGED(1),
   USER_PROFILE_CHANGED(2),
   CB_CHANGED(3),
@@ -11,7 +15,7 @@ public enum AlgoStateChangeReasons {
   MASK(255);
   private int value;
 
-  AlgoStateChangeReasons(int value) {
+  AlgoStateChangeReason(int value) {
     this.setValue(value);
   }
 
@@ -21,6 +25,15 @@ public enum AlgoStateChangeReasons {
 
   public void setValue(int value) {
     this.value = value;
+  }
+
+  public static AlgoStateChangeReason fromValue(int value) {
+    for (AlgoStateChangeReason e : values()) {
+      if (e.value == value) {
+        return e;
+      }
+    }
+    return null;
   }
 
 }

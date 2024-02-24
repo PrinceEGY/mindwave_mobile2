@@ -1,6 +1,8 @@
 package headset.events.headsetStateChange;
 
-public enum HeadsetStateTypes {
+public enum HeadsetState {
+  //TODO: REMOVE TEST
+  TEST(-1),
   INIT(0),
   CONNECTING(1),
   CONNECTED(2),
@@ -18,15 +20,24 @@ public enum HeadsetStateTypes {
 
   private int value;
 
-  HeadsetStateTypes(int value) {
+  HeadsetState(int value) {
     this.setValue(value);
   }
-
+  
   public int getValue() {
     return value;
   }
 
   public void setValue(int value) {
     this.value = value;
+  }
+
+  public static HeadsetState fromValue(int value) {
+    for (HeadsetState e : values()) {
+      if (e.value == value) {
+        return e;
+      }
+    }
+    return null;
   }
 }

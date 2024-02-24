@@ -4,14 +4,14 @@ import java.util.EventObject;
 
 public class HeadsetStateChangeEvent extends EventObject {
 
-  private final HeadsetStateTypes state;
+  private final HeadsetState state;
 
-  public HeadsetStateChangeEvent(Object source, HeadsetStateTypes state) {
+  public HeadsetStateChangeEvent(Object source, HeadsetState state) {
     super(source);
     this.state = state;
   }
 
-  public HeadsetStateTypes getState() {
+  public HeadsetState getState() {
     return state;
   }
 }

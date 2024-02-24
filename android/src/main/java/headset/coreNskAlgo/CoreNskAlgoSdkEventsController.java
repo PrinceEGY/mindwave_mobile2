@@ -42,7 +42,6 @@ public class CoreNskAlgoSdkEventsController {
   }
 
   public void fireEvent(NskAlgoEvent event) {
-//    Log.w("CoreNskAlgoSdkEventsController", "fireEvent: " + event.toString());
     if (event instanceof AlgoBlinkEvent) {
       this.algoBlinkEventHandler.fireEvent((AlgoBlinkEvent) event);
 
