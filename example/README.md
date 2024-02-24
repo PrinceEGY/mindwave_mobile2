@@ -1,6 +1,6 @@
-# flutter_mindwave_mobile2_example
+# mindwave_mobile2_example
 
-Demonstrates how to use the flutter_mindwave_mobile2 plugin.
+Demonstrates how to use the mindwave_mobile2 plugin.
 
 ## Getting Started
 

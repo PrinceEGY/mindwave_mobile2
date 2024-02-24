@@ -45,6 +45,7 @@ class _MyAppState extends State<MyApp> {
         : BluetoothOffScreen(adapterState: _adapterState);
 
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       color: Colors.lightBlue,
       home: screen,
       navigatorObservers: [BluetoothAdapterStateObserver()],
