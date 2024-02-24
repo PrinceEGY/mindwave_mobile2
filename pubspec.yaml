@@ -1,7 +1,7 @@
-name: flutter_mindwave_mobile2
+name: mindwave_mobile2
 description: "Flutter interface for Neurosky Mindwave Mobile 2 headset."
 version: 1.0.0
-homepage: https://github.com/PrinceEGY/flutter_mindwave_mobile2
+homepage: https://github.com/PrinceEGY/mindwave_mobile2
 
 environment:
   sdk: '>=3.2.6 <4.0.0'
@@ -21,5 +21,5 @@ flutter:
   plugin:
     platforms:
       android:
-        package: org.mindwavemobile2.flutter_mindwave_mobile2
-        pluginClass: FlutterMindwaveMobile2Plugin
+        package: org.mindwave.mindwave_mobile2
+        pluginClass: MindwaveMobile2Plugin

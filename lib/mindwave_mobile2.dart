@@ -1,21 +1,20 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
-import 'package:flutter_mindwave_mobile2/AlgoStateReason.dart';
+import 'package:mindwave_mobile2/AlgoStateReason.dart';
 
 import 'AlgoBandPower.dart';
 import 'BandPower.dart';
 import 'HeadsetState.dart';
 
-const String NAMESPACE = 'flutter_mindwave_mobile2';
+const String NAMESPACE = 'mindwave_mobile2';
 
-class FlutterMindwaveMobile2 {
-  static final FlutterMindwaveMobile2 instance =
-      FlutterMindwaveMobile2._internal();
-  factory FlutterMindwaveMobile2() {
+class MindwaveMobile2 {
+  static final MindwaveMobile2 instance = MindwaveMobile2._internal();
+  factory MindwaveMobile2() {
     return instance;
   }
-  FlutterMindwaveMobile2._internal();
+  MindwaveMobile2._internal();
 
   Future<bool> init(String deviceID) async {
     return await _connectionChannel

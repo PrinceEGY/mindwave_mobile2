@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:flutter_mindwave_mobile2/flutter_mindwave_mobile2.dart';
+import 'package:mindwave_mobile2/mindwave_mobile2.dart';
 
 import '../util/snackbar_popup.dart';
 import 'device_screen.dart';
@@ -86,7 +86,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
   void onOpenPressed(BluetoothDevice device) async {
     try {
-      await FlutterMindwaveMobile2.instance.init(device.remoteId.str);
+      await MindwaveMobile2.instance.init(device.remoteId.str);
       onStopPressed();
     } catch (e) {
       if (context.mounted) {

@@ -1,4 +1,4 @@
-package org.mindwavemobile2.flutter_mindwave_mobile2;
+package org.mindwavemobile2.mindwave_mobile2;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -9,16 +9,17 @@ import org.junit.Test;
 
 /**
  * This demonstrates a simple unit test of the Java portion of this plugin's implementation.
- *
- * Once you have built the plugin's example app, you can run these tests from the command
- * line by running `./gradlew testDebugUnitTest` in the `example/android/` directory, or
- * you can run them directly from IDEs that support JUnit such as Android Studio.
+ * <p>
+ * Once you have built the plugin's example app, you can run these tests from the command line by
+ * running `./gradlew testDebugUnitTest` in the `example/android/` directory, or you can run them
+ * directly from IDEs that support JUnit such as Android Studio.
  */
 
-public class FlutterMindwaveMobile2PluginTest {
+public class MindwaveMobile2PluginTest {
+
   @Test
   public void onMethodCall_getPlatformVersion_returnsExpectedValue() {
-    FlutterMindwaveMobile2Plugin plugin = new FlutterMindwaveMobile2Plugin();
+    MindwaveMobile2Plugin plugin = new MindwaveMobile2Plugin();
 
     final MethodCall call = new MethodCall("getPlatformVersion", null);
     MethodChannel.Result mockResult = mock(MethodChannel.Result.class);

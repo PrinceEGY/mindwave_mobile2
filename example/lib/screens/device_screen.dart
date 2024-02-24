@@ -1,13 +1,12 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:flutter_mindwave_mobile2/AlgoBandPower.dart';
-import 'package:flutter_mindwave_mobile2/AlgoStateReason.dart';
-import 'package:flutter_mindwave_mobile2/BandPower.dart';
-import 'package:flutter_mindwave_mobile2/HeadsetState.dart';
-import 'package:flutter_mindwave_mobile2/flutter_mindwave_mobile2.dart';
+import 'package:mindwave_mobile2/AlgoBandPower.dart';
+import 'package:mindwave_mobile2/AlgoStateReason.dart';
+import 'package:mindwave_mobile2/BandPower.dart';
+import 'package:mindwave_mobile2/HeadsetState.dart';
+import 'package:mindwave_mobile2/mindwave_mobile2.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 import '../util/snackbar_popup.dart';
@@ -22,7 +21,7 @@ class DeviceScreen extends StatefulWidget {
 }
 
 class _DeviceScreenState extends State<DeviceScreen> {
-  final FlutterMindwaveMobile2 headset = FlutterMindwaveMobile2();
+  final MindwaveMobile2 headset = MindwaveMobile2();
   HeadsetState _headsetState = HeadsetState.DISCONNECTED;
   AlgoState _algoState = AlgoState.UNINTIED;
   AlgoReason _algoReason = AlgoReason.SIGNAL_QUALITY;
@@ -105,7 +104,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
   Future onConnectPressed() async {
     try {
-      await FlutterMindwaveMobile2.instance.connect();
+      await MindwaveMobile2.instance.connect();
     } catch (e) {
       if (context.mounted) {
         showSnackBarPopup(
@@ -116,7 +115,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
   Future onDisconnectPressed() async {
     try {
-      await FlutterMindwaveMobile2.instance.disconnect();
+      await MindwaveMobile2.instance.disconnect();
     } catch (e) {
       if (context.mounted) {
         showSnackBarPopup(

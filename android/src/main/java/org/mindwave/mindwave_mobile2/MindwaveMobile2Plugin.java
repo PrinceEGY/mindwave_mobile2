@@ -1,11 +1,10 @@
-package org.mindwavemobile2.flutter_mindwave_mobile2;
+package org.mindwave.mindwave_mobile2;
 
 import android.content.Context;
 import android.bluetooth.BluetoothManager;
 import androidx.annotation.NonNull;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import headset.MindWaveMobile2;
 import headset.events.headsetStateChange.HeadsetStateChangeEvent;
@@ -28,7 +27,6 @@ import headset.events.stream.streamAttention.StreamAttentionEvent;
 import headset.events.stream.streamBandPower.IStreamBandPowerEventListener;
 import headset.events.stream.streamBandPower.StreamBandPowerEvent;
 import headset.events.stream.streamBandPower.StreamBandPower;
-import headset.events.stream.streamBandPower.IStreamBandPowerEventListener;
 import headset.events.stream.streamMeditation.IStreamMeditationEventListener;
 import headset.events.stream.streamMeditation.StreamMeditationEvent;
 import headset.events.stream.streamRaw.IStreamRawDataEventListener;
@@ -46,9 +44,9 @@ import io.flutter.plugin.common.MethodChannel.Result;
 import java.util.HashMap;
 
 
-public class FlutterMindwaveMobile2Plugin implements FlutterPlugin {
+public class MindwaveMobile2Plugin implements FlutterPlugin {
 
-  private static final String NAMESPACE = "flutter_mindwave_mobile2";
+  private static final String NAMESPACE = "mindwave_mobile2";
   private final Handler uiThreadHandler = new Handler(Looper.getMainLooper());
   private MindWaveMobile2 headset;
   private BluetoothManager _BluetoothManager;
