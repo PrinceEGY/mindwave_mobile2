@@ -4,4 +4,8 @@
 
 ## 1.0.0+1
 
-- Added docs
+- Following file and naming conventions
+- 
+## 1.0.0+2
+
+- Added API docs
