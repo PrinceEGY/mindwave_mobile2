@@ -9,13 +9,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
-import 'package:flutter_mindwave_mobile2/flutter_mindwave_mobile2.dart';
+import 'package:mindwave_mobile2/mindwave_mobile2.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('getPlatformVersion test', (WidgetTester tester) async {
-    final FlutterMindwaveMobile2 plugin = FlutterMindwaveMobile2();
+    final MindwaveMobile2 plugin = MindwaveMobile2();
     // The version string depends on the host platform running the test, so
     // just assert that some non-empty string is returned.
     // expect(version?.isNotEmpty, true);

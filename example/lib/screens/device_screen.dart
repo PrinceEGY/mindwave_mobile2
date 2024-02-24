@@ -2,11 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:flutter_mindwave_mobile2/AlgoBandPower.dart';
-import 'package:flutter_mindwave_mobile2/AlgoStateReason.dart';
-import 'package:flutter_mindwave_mobile2/BandPower.dart';
-import 'package:flutter_mindwave_mobile2/HeadsetState.dart';
-import 'package:flutter_mindwave_mobile2/flutter_mindwave_mobile2.dart';
+import 'package:mindwave_mobile2/AlgoBandPower.dart';
+import 'package:mindwave_mobile2/AlgoStateReason.dart';
+import 'package:mindwave_mobile2/BandPower.dart';
+import 'package:mindwave_mobile2/HeadsetState.dart';
+import 'package:mindwave_mobile2/mindwave_mobile2.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 import '../util/snackbar_popup.dart';
 
@@ -20,16 +21,17 @@ class DeviceScreen extends StatefulWidget {
 }
 
 class _DeviceScreenState extends State<DeviceScreen> {
-  final FlutterMindwaveMobile2 headset = FlutterMindwaveMobile2();
+  final MindwaveMobile2 headset = MindwaveMobile2();
   HeadsetState _headsetState = HeadsetState.DISCONNECTED;
   AlgoState _algoState = AlgoState.UNINTIED;
-  AlgoReason _algoReason = AlgoReason.NO_BASELINE;
+  AlgoReason _algoReason = AlgoReason.SIGNAL_QUALITY;
 
   late StreamSubscription<HeadsetState>? _headsetStateSubscription;
   late StreamSubscription<Map>? _algoStateReasonSubscription;
 
   bool streamDataListen = true;
   bool algoDataListen = true;
+  bool rawChartView = true;
 
   @override
   void initState() {
@@ -61,13 +63,48 @@ class _DeviceScreenState extends State<DeviceScreen> {
     super.dispose();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.device.platformName),
+        actions: [buildConnectButton(context)],
+      ),
+      body: SingleChildScrollView(
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              buildStateWidget(context),
+              const Divider(height: 20, color: Colors.black),
+              buildSwitchStreamWidget(context),
+              buildSwitchAlgoWidget(context),
+              buildSwitchRawViewWidget(context),
+              const Divider(height: 20, color: Colors.black),
+              if (streamDataListen) buildStreamDataWidget(context),
+              const SizedBox(height: 20),
+              if (rawChartView) buildRawChartWidget(context),
+              if (algoDataListen) ...[
+                const Divider(height: 20, color: Colors.black),
+                buildAlgoStateReasonHeaderWidget(context),
+                const SizedBox(height: 10),
+                buildAlgoStreamDataWidget(context),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   bool get isWorking {
     return _headsetState == HeadsetState.WORKING;
   }
 
   Future onConnectPressed() async {
     try {
-      await FlutterMindwaveMobile2.instance.connect();
+      await MindwaveMobile2.instance.connect();
     } catch (e) {
       if (context.mounted) {
         showSnackBarPopup(
@@ -78,7 +115,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
   Future onDisconnectPressed() async {
     try {
-      await FlutterMindwaveMobile2.instance.disconnect();
+      await MindwaveMobile2.instance.disconnect();
     } catch (e) {
       if (context.mounted) {
         showSnackBarPopup(
@@ -152,6 +189,25 @@ class _DeviceScreenState extends State<DeviceScreen> {
           value: algoDataListen,
           onChanged: (value) => setState(() {
             algoDataListen = value;
+          }),
+        )
+      ],
+    );
+  }
+
+  Widget buildSwitchRawViewWidget(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        const Text(
+          "Show Raw Data View",
+          style: TextStyle(fontSize: 18),
+        ),
+        Switch(
+          activeTrackColor: Colors.green,
+          value: rawChartView,
+          onChanged: (value) => setState(() {
+            rawChartView = value;
           }),
         )
       ],
@@ -397,7 +453,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
     );
   }
 
-  Widget buildAlgoBlinkDetectWidget(BuildContext conetxt) {
+  Widget buildAlgoBlinkDetectWidget(BuildContext context) {
     return StreamBuilder(
       stream: headset.onBlink(),
       builder: (context, snapshot) => Column(
@@ -429,38 +485,64 @@ class _DeviceScreenState extends State<DeviceScreen> {
         ),
         const SizedBox(height: 10),
         buildAlgoBandPowerStreamWidget(context),
+        const SizedBox(height: 10),
         buildAlgoBlinkDetectWidget(context),
       ],
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.device.platformName),
-        actions: [buildConnectButton(context)],
-      ),
-      body: SingleChildScrollView(
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              buildStateWidget(context),
-              const Divider(height: 20, color: Colors.black),
-              buildSwitchStreamWidget(context),
-              buildSwitchAlgoWidget(context),
-              const Divider(height: 20, color: Colors.black),
-              if (streamDataListen) buildStreamDataWidget(context),
-              const Divider(height: 20, color: Colors.black),
-              buildAlgoStateReasonHeaderWidget(context),
-              const SizedBox(height: 10),
-              if (algoDataListen) buildAlgoStreamDataWidget(context),
-            ],
-          ),
-        ),
-      ),
-    );
+  Widget buildRawChartWidget(BuildContext context) {
+    return StreamBuilder(
+        stream: headset.onRawUpdate(),
+        builder: (context, snapshot) {
+          var spots = snapshot.hasData
+              ? snapshot.data!
+                  .asMap()
+                  .entries
+                  .map((entry) =>
+                      FlSpot(entry.key.toDouble(), entry.value.toDouble()))
+                  .toList()
+              : List.generate(512, (index) => index)
+                  .map((e) => FlSpot(e.toDouble(), 1.0))
+                  .toList();
+          return AspectRatio(
+            aspectRatio: 2,
+            child: LineChart(
+              LineChartData(
+                lineBarsData: [
+                  LineChartBarData(
+                    color: Colors.red,
+                    spots: spots,
+                    isCurved: false,
+                    dotData: const FlDotData(
+                      show: false,
+                    ),
+                  )
+                ],
+                borderData: FlBorderData(
+                  border: const Border(
+                    bottom: BorderSide(),
+                    left: BorderSide(),
+                  ),
+                ),
+                gridData: const FlGridData(show: false),
+                titlesData: const FlTitlesData(
+                  leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 30,
+                  )),
+                  topTitles:
+                      AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles:
+                      AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                ),
+                lineTouchData: const LineTouchData(
+                  enabled: false,
+                ),
+              ),
+            ),
+          );
+        });
   }
 }

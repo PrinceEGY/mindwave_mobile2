@@ -1,4 +1,4 @@
-group 'org.mindwavemobile2.flutter_mindwave_mobile2'
+group 'org.mindwave.mindwave_mobile2'
 version '1.0'
 
 buildscript {
@@ -23,7 +23,7 @@ apply plugin: 'com.android.library'
 
 android {
     if (project.android.hasProperty("namespace")) {
-        namespace 'org.mindwavemobile2.flutter_mindwave_mobile2'
+        namespace 'org.mindwave.mindwave_mobile2'
     }
 
     compileSdk 34
@@ -49,9 +49,9 @@ android {
     testOptions {
         unitTests.all {
             testLogging {
-               events "passed", "skipped", "failed", "standardOut", "standardError"
-               outputs.upToDateWhen {false}
-               showStandardStreams = true
+                events "passed", "skipped", "failed", "standardOut", "standardError"
+                outputs.upToDateWhen { false }
+                showStandardStreams = true
             }
         }
     }
