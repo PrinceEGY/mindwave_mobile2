@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="generator" content="made with love by dartdoc 7.0.1-wip">
+  <meta name="description" content="mindwave_mobile2 API docs, for the Dart programming language.">
+  <title>mindwave_mobile2 - Dart API docs</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="static-assets/github.css?v1">
+  <link rel="stylesheet" href="static-assets/styles.css?v1">
+  <link rel="icon" href="static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="" data-using-base-href="false" class="light-theme">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="https://github.com/PrinceEGY/mindwave_mobile2">mindwave_mobile2 package</a></li>
+  </ol>
+  <div class="self-name">mindwave_mobile2</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        brightness_4
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        brightness_5
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+
+  <div id="dartdoc-main-content" class="main-content">
+      
+<section class="desc markdown">
+  <h1 id="mindwave_mobile2">mindwave_mobile2</h1>
+<p>A plugin the provides a Flutter interface for connecting with <a href="https://store.neurosky.com/pages/mindwave">Neurosky MindWave Mobile 2</a> Headset.
+This plugin is built over the android SDK provided from NeuroSky <a href="https://store.neurosky.com/products/android-developer-tools-4">Android Developer Tools 4.2</a>, utlizing both Stream SDK and AlgoSDK.</p>
+<p><u><strong>Note that:</strong> The plugin is currently <strong>only supports android</strong>, feel free to <strong>contribute</strong> to add IOS support or any other functionalties.</u></p>
+<p><u><strong>Note that:</strong> The plugin is not offical or sponsored by <a href="http://neurosky.com/">Neurosky</a>.</u></p>
+<h2 id="usage">Usage</h2>
+<p>To use this plugin, add <code>mindwave_mobile2</code> as a <a href="https://flutter.io/platform-plugins/">dependency in your pubspec.yaml file</a></p>
+<pre class="language-yaml"><code class="language-yaml">dependencies:
+  ......
+  mindwave_mobile_2: '^1.0.0'
+</code></pre>
+<p>The plugin requires the MindWave mobile 2 device ID in order to initialize, you can get this using any bluetooth package such as <a href="https://pub.dev/packages/flutter_blue_plus">FlutterBluePlus</a>.</p>
+<h3 id="initalizing-mindwave">Initalizing MindWave</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+
+await FlutterBluePlus.startScan(timeout: const Duration(seconds: 15));
+
+FlutterBluePlus.scanResults.listen((List&lt;ScanResult&gt; results) {
+  results.forEach((result) {
+    final deviceID = result.device.platformName;
+    if (deviceID == "MindWave Mobile") {
+      MindwaveMobile2.instance.init(deviceID);
+    }
+  });
+});
+</code></pre>
+<h3 id="connect--disconnect">Connect &amp; Disconnect</h3>
+<p><strong>Must be executed after <code>init</code></strong></p>
+<pre class="language-dart"><code class="language-dart">MindwaveMobile2.instance.connect();
+
+MindwaveMobile2.instance.disconnect();
+</code></pre>
+<h2 id="events-streamers">Events Streamers</h2>
+<p>Most of the plugin functionalties are built as event streamers, every headset state or data are emitted as events.</p>
+<p><strong>Note that: the plugin provides all events interfaces for both StreamSDK and AlgoSDK, there is common events between both SDK's that returns exactly the same results, you shall use any of them.</strong></p>
+<h3 id="--headset-state">- Headset State</h3>
+<p>Emits the current state of the Headset.</p>
+<pre class="language-dart"><code class="language-dart">_headsetStateSubscription = MindwaveMobile2.instance.onStateChange().listen((state) {
+  _headsetState = state;
+  if (state == HeadsetState.DISCONNECTED) {
+    MindwaveMobile2.instance.disconnect();
+  }
+  if (mounted) {
+    setState(() {});
+  }
+});
+</code></pre>
+<h3 id="--streamsdk-events">- StreamSDK events</h3>
+<pre class="language-dart"><code class="language-dart">var signalQualitySubscription = MindwaveMobile2.instance.onSignalQualityUpdate()
+  .listen((int signalQuality) {
+      // Handle signalQuality
+  });
+
+var attentionSubscription = MindwaveMobile2.instance.onAttentionUpdate()
+  .listen((int attention) {
+      // Handle attention
+  });
+
+var meditationSubscription = MindwaveMobile2.instance.onMeditationUpdate()
+  .listen((int meditation) {
+      // Handle meditation
+  });
+
+var bandPowerSubscription = MindwaveMobile2.instance.onBandPowerUpdate()
+  .listen((BandPower bandPower) {
+      // Handle bandPower
+  });
+
+var rawSubscription = MindwaveMobile2.instance.onRawUpdate()
+  .listen((List&lt;int&gt; rawData) {
+      // Handle rawData
+  });
+</code></pre>
+<h3 id="--algosdk-events">- AlgoSDK events</h3>
+<pre class="language-dart"><code class="language-dart">var algoStateReasonSubscription = MindwaveMobile2.instance.onAlgoStateReasonChange()
+  .listen((Map stateReason) {
+      // Handle stateReason
+      // The returned map is of the form
+      // {"State": AlgoState, "Reason": AlgoReason}
+  });
+
+var algoAttentionSubscription = MindwaveMobile2.instance.onAlgoAttentionUpdate()
+  .listen((int attention) {
+      // Handle attention
+  });
+
+var algoMeditationSubscription = MindwaveMobile2.instance.onAlgoMeditationUpdate()
+  .listen((int meditation) {
+      // Handle meditation
+  });
+
+var algoBandPowerSubscription = MindwaveMobile2.instance.onAlgoBandPowerUpdate()
+  .listen((AlgoBandPower algoBandPower) {
+      // Handle algoBandPower
+  });
+
+var algoSignalQualitySubscription = MindwaveMobile2.instance.onAlgoSignalQualityUpdate()
+  .listen((int signalQuality) {
+      // Handle signalQuality
+  });
+
+var algoBlinkSubscription = MindwaveMobile2.instance.onBlink()
+  .listen((int blinkStrength) {
+      // Handle blinkStrength
+  });
+</code></pre>
+<h2 id="contribution">Contribution</h2>
+<p>Feel free to contribute to this plugin to add, update, suggest other features.</p>
+</section>
+
+
+      <section class="summary">
+          <h2>Libraries</h2>
+        <dl>
+          <dt id="algo_band_power">
+  <span class="name"><a href="enums_algo_band_power/enums_algo_band_power-library.html">algo_band_power</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="algo_state_reason">
+  <span class="name"><a href="enums_algo_state_reason/enums_algo_state_reason-library.html">algo_state_reason</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="band_power">
+  <span class="name"><a href="enums_band_power/enums_band_power-library.html">band_power</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="headset_state">
+  <span class="name"><a href="enums_headset_state/enums_headset_state-library.html">headset_state</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="mindwave_mobile2">
+  <span class="name"><a href="mindwave_mobile2/mindwave_mobile2-library.html">mindwave_mobile2</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+        </dl>
+      </section>
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="https://github.com/PrinceEGY/mindwave_mobile2">mindwave_mobile2 package</a></li>
+</ol>
+
+
+    <h5 class="hidden-xs"><span class="package-name">mindwave_mobile2</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="enums_algo_band_power/enums_algo_band_power-library.html">algo_band_power</a></li>
+      <li><a href="enums_algo_state_reason/enums_algo_state_reason-library.html">algo_state_reason</a></li>
+      <li><a href="enums_band_power/enums_band_power-library.html">band_power</a></li>
+      <li><a href="enums_headset_state/enums_headset_state-library.html">headset_state</a></li>
+      <li><a href="mindwave_mobile2/mindwave_mobile2-library.html">mindwave_mobile2</a></li>
+</ol>
+
+  </div>
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div>
+
+</main>
+
+<footer>
+  <span class="no-break">
+    mindwave_mobile2
+      1.0.0
+  </span>
+
+  
+</footer>
+
+
+
+<script src="static-assets/highlight.pack.js?v1"></script>
+<script src="static-assets/docs.dart.js"></script>
+
+
+
+</body>
+
+</html>
+
