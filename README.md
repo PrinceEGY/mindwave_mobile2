@@ -7,6 +7,18 @@ This plugin is built over the android SDK provided from NeuroSky [Android Develo
 
 <u>**Note that:** The plugin is not offical or sponsored by [Neurosky](http://neurosky.com/).</u>
 
+## Example
+You can try an example utlizing this plugin.
+```
+cd ./example
+flutter run
+```
+<img src='https://github.com/PrinceEGY/mindwave_mobile2/blob/main/site/example_scan_screen.jpg' width='250' height='510'/>..<img src='https://github.com/PrinceEGY/mindwave_mobile2/blob/main/site/example_disconnected.jpg' width='250' height='510'/>
+
+<img src='https://github.com/PrinceEGY/mindwave_mobile2/blob/main/site/example_connected_raw.jpg' width='250' height='510'/>..<img src='https://github.com/PrinceEGY/mindwave_mobile2/blob/main/site/example_connected_algo.jpg' width='250' height='510'/>
+
+
+
 ## Usage
 To use this plugin, add `mindwave_mobile2` as a [dependency in your pubspec.yaml file](https://flutter.io/platform-plugins/)
 ```yaml
