@@ -1,4 +1,5 @@
 # mindwave_mobile2
+[![Pub Version](https://img.shields.io/pub/v/mindwave_mobile2)](https://pub.dartlang.org/packages/mindwave_mobile2)
 
 A plugin the provides a Flutter interface for connecting with [Neurosky MindWave Mobile 2](https://store.neurosky.com/pages/mindwave) Headset.
 This plugin is built over the android SDK provided from NeuroSky [Android Developer Tools 4.2](https://store.neurosky.com/products/android-developer-tools-4), utlizing both Stream SDK and AlgoSDK.
@@ -6,6 +7,18 @@ This plugin is built over the android SDK provided from NeuroSky [Android Develo
 <u>**Note that:** The plugin is currently **only supports android**, feel free to **contribute** to add IOS support or any other functionalties.</u>
 
 <u>**Note that:** The plugin is not offical or sponsored by [Neurosky](http://neurosky.com/).</u>
+
+## Example
+You can try an example utlizing this plugin.
+```
+cd ./example
+flutter run
+```
+<img src='https://github.com/PrinceEGY/mindwave_mobile2/blob/main/site/example_scan_screen.jpg' width='250' height='510'/>..<img src='https://github.com/PrinceEGY/mindwave_mobile2/blob/main/site/example_disconnected.jpg' width='250' height='510'/>
+
+<img src='https://github.com/PrinceEGY/mindwave_mobile2/blob/main/site/example_connected_raw.jpg' width='250' height='510'/>..<img src='https://github.com/PrinceEGY/mindwave_mobile2/blob/main/site/example_connected_algo.jpg' width='250' height='510'/>
+
+
 
 ## Usage
 To use this plugin, add `mindwave_mobile2` as a [dependency in your pubspec.yaml file](https://flutter.io/platform-plugins/)
