@@ -136,7 +136,7 @@ var algoBlinkSubscription = MindwaveMobile2.instance.onBlink()
 ```
 
 ## Credits
-This project includes parts of code that implements and wraps native Stream and Algo SDK from [NeuroSyncCore](https://github.com/Neuro-Sync/NeuroSyncCore/tree/main/app/src/main/java/headset) created by [Mohamed Medhat](https://github.com/MOHAMMED1MEDHAT). We are grateful for their work and the impact it has had on our project.
+This project includes parts of code that implements and wraps native Stream and Algo SDKs from [NeuroSyncCore](https://github.com/Neuro-Sync/NeuroSyncCore/tree/main/app/src/main/java/headset) created by [Mohamed Medhat](https://github.com/MOHAMMED1MEDHAT). We are grateful for their work and the impact it has had on this plugin.
 
 
 ## Contribution
