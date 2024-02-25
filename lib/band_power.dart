@@ -19,6 +19,9 @@ class BandPower {
   /// The low beta band power value.
   late num lowBeta;
 
+  /// The low beta band power value.
+  late num highBeta;
+
   /// The low gamma band power value.
   late num lowGamma;
 
@@ -32,8 +35,9 @@ class BandPower {
   /// - [lowAlpha]: The low alpha band power value.
   /// - [highAlpha]: The high alpha band power value.
   /// - [lowBeta]: The low beta band power value.
+  /// - [highBeta]: The high beta band power value.
   /// - [lowGamma]: The low gamma band power value.
   /// - [middleGamma]: The middle gamma band power value.
   BandPower(this.delta, this.theta, this.lowAlpha, this.highAlpha, this.lowBeta,
-      this.lowGamma, this.middleGamma);
+      this.highBeta, this.lowGamma, this.middleGamma);
 }

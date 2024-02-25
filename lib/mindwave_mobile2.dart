@@ -119,7 +119,7 @@ class MindwaveMobile2 {
   /// emits 'BandPower' values every second
   Stream<BandPower> onBandPowerUpdate() {
     return _bandPowerChannel.receiveBroadcastStream().map((event) => BandPower(
-        event[0], event[1], event[2], event[3], event[4], event[5], event[6]));
+        event[0], event[1], event[2], event[3], event[4], event[5], event[6], event[7]));
   }
 
   /// Stream for receiving updates on raw data update.

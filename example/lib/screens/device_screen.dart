@@ -281,7 +281,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
                   children: [
                     Text("lowBeta",
                         style: Theme.of(context).textTheme.bodyLarge),
-                    Text(snapshot.hasData ? "${bandPower!.delta}" : "N/A",
+                    Text(snapshot.hasData ? "${bandPower!.lowBeta}" : "N/A",
                         style: Theme.of(context).textTheme.bodyMedium),
                   ],
                 ),
@@ -289,7 +289,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
                   children: [
                     Text("highBeta",
                         style: Theme.of(context).textTheme.bodyLarge),
-                    Text(snapshot.hasData ? "${bandPower!.theta}" : "N/A",
+                    Text(snapshot.hasData ? "${bandPower!.highBeta}" : "N/A",
                         style: Theme.of(context).textTheme.bodyMedium),
                   ],
                 ),
@@ -297,7 +297,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
                   children: [
                     Text("lowGamma",
                         style: Theme.of(context).textTheme.bodyLarge),
-                    Text(snapshot.hasData ? "${bandPower!.lowAlpha}" : "N/A",
+                    Text(snapshot.hasData ? "${bandPower!.lowGamma}" : "N/A",
                         style: Theme.of(context).textTheme.bodyMedium),
                   ],
                 ),
@@ -305,7 +305,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
                   children: [
                     Text("midGamma",
                         style: Theme.of(context).textTheme.bodyLarge),
-                    Text(snapshot.hasData ? "${bandPower!.highAlpha}" : "N/A",
+                    Text(snapshot.hasData ? "${bandPower!.middleGamma}" : "N/A",
                         style: Theme.of(context).textTheme.bodyMedium),
                   ],
                 ),
